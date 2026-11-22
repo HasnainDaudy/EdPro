@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { User, Course } from '../types.js';
 import { fetchCourses, updateProfile } from '../api.js';
+import { useAccessibility } from '../context/AccessibilityContext.js';
 
 interface StudentDashboardProps {
   user: User;
@@ -35,6 +36,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const [isSavingFocus, setIsSavingFocus] = useState<boolean>(false);
   const [selectedPassion, setSelectedPassion] = useState<string>(user.passionTrack ?? 'visual_arts');
   const [loading, setLoading] = useState<boolean>(true);
+  const { t } = useAccessibility();
 
   useEffect(() => {
     fetchCourses()
@@ -102,13 +104,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             </p>
           </div>
 
-          {/* Clean Metric Badges (Zero Emojis) */}
+          {/* Clean Metric Badges */}
           <div className="flex items-center gap-3">
             <div className="bg-stone-50 border border-stone-200 px-4 py-2.5 rounded-2xl flex items-center gap-2.5">
               <Flame className="w-4 h-4 text-[#D94826]" />
               <div>
                 <span className="text-[10px] uppercase font-bold text-stone-500 block">Consecutive Days</span>
-                <span className="text-xs font-mono font-bold text-stone-900">4 Active Sessions</span>
+                <span className="text-xs font-mono font-bold text-stone-900">4 {t.activeSessions}</span>
               </div>
             </div>
 
@@ -127,15 +129,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Sliders className="w-4 h-4 text-stone-600" />
-              <h2 className="text-xs font-bold text-stone-900">Curriculum Focus Allocation</h2>
+              <h2 className="text-xs font-bold text-stone-900">{t.curriculumFocus}</h2>
             </div>
             <div className="text-xs font-mono">
               {isSavingFocus ? (
                 <span className="text-[#D94826]">Updating profile...</span>
               ) : (
                 <span className="text-stone-500">
-                  <strong className="text-[#D94826]">{focusArt}%</strong> Creative Arts /{' '}
-                  <strong className="text-[#1D4ED8]">{focusMath}%</strong> Applied Math
+                  <strong className="text-[#D94826]">{focusArt}%</strong> {t.studioArts} /{' '}
+                  <strong className="text-[#1D4ED8]">{focusMath}%</strong> {t.appliedMath}
                 </span>
               )}
             </div>
@@ -236,7 +238,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                       <span>L4</span>
                       <span>L5</span>
                       <span>L6</span>
-                      <span className="font-bold text-amber-700">Milestone 7</span>
+                      <span className="font-bold text-amber-700">{t.milestoneTest}</span>
                     </div>
                   </div>
                 </div>
@@ -247,7 +249,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     className="flex-1 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
                   >
                     <BookOpen className="w-4 h-4" />
-                    <span>Open Lecture {currentLesson}</span>
+                    <span>{t.openLecture} {currentLesson}</span>
                   </button>
 
                   <button
@@ -255,7 +257,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                     className="px-4 py-2.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
                   >
                     <Award className="w-4 h-4 text-amber-600" />
-                    <span>Milestone 7 Test</span>
+                    <span>{t.milestoneTest}</span>
                   </button>
                 </div>
               </div>

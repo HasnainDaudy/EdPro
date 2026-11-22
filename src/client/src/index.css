@@ -5,10 +5,62 @@
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     color: #18181b;
     background-color: #fafaf8;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
   code, pre {
     font-family: 'JetBrains Mono', monospace;
   }
+}
+
+/* OpenDyslexic / Dyslexia-affirming typography override */
+body.font-dyslexic {
+  font-family: 'Comic Sans MS', 'Trebuchet MS', -apple-system, sans-serif !important;
+  letter-spacing: 0.04em !important;
+  word-spacing: 0.08em !important;
+  line-height: 1.85 !important;
+}
+
+body.font-dyslexic h1,
+body.font-dyslexic h2,
+body.font-dyslexic h3,
+body.font-dyslexic p,
+body.font-dyslexic span,
+body.font-dyslexic button {
+  letter-spacing: 0.03em !important;
+}
+
+/* Sensory Calm Calibration (Autism / Sensory Overload mode) */
+body.sensory-calm {
+  background-color: #f5f2eb !important;
+  color: #2b2823 !important;
+}
+
+body.sensory-calm header,
+body.sensory-calm .bg-white {
+  background-color: #fbf9f5 !important;
+  border-color: #e3ded5 !important;
+}
+
+body.sensory-calm .bg-stone-50,
+body.sensory-calm .bg-stone-100 {
+  background-color: #ede8df !important;
+  border-color: #dad4c8 !important;
+}
+
+/* Sensory High-Contrast Calibration */
+body.sensory-contrast {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+body.sensory-contrast header,
+body.sensory-contrast .bg-white {
+  background-color: #ffffff !important;
+  border-color: #000000 !important;
+}
+
+body.sensory-contrast button {
+  border-width: 2px !important;
 }
 
 /* Studio natural depth shadows */
