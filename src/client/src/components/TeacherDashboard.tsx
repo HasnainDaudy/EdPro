@@ -3,13 +3,9 @@ import {
   Users,
   CheckSquare,
   BarChart3,
-  Sparkles,
-  Award,
   Star,
   Send,
   ShieldCheck,
-  ChevronRight,
-  Filter,
   CheckCircle2
 } from 'lucide-react';
 import { User } from '../types.js';
@@ -66,33 +62,32 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto w-full px-4 py-8 space-y-8">
-      {/* Teacher Header Banner */}
-      <div className="bg-gradient-to-r from-emerald-950/40 via-slate-900 to-indigo-950/40 border border-emerald-500/30 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 space-y-8">
+      {/* Educator Header Banner */}
+      <div className="bg-white border border-stone-200 border-t-4 border-t-[#15803D] rounded-3xl p-6 sm:p-8 shadow-studio space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider bg-emerald-500/20 text-emerald-300 font-bold px-2.5 py-0.5 rounded-full">
-                Educator & Mentor Portal
-              </span>
-              <span className="text-xs text-slate-400">• FERPA Authorized Classroom</span>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-stone-500 mb-1">
+              <span>Educator Hub</span>
+              <span>•</span>
+              <span>FERPA Authorized Classroom</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Teacher Hub: {user.displayName}
+            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+              Classroom Studio: {user.displayName}
             </h1>
-            <p className="text-xs md:text-sm text-slate-300 mt-2 max-w-xl leading-relaxed">
-              Curate, monitor, and assess your students' personalized learning tracks. Review creative performance artifacts, review diagnostic heatmaps, and tailor instruction to each child's passion.
+            <p className="text-xs sm:text-sm text-stone-600 mt-1 max-w-xl leading-relaxed">
+              Curate and assess personalized learner pathways. Grade creative performance tasks using multi-dimensional rubrics, monitor competency progress, and group students for targeted guidance.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="bg-slate-950/80 px-4 py-3 rounded-2xl border border-slate-800 text-center">
-              <span className="text-[10px] text-slate-400 uppercase font-bold block">Enrolled Learners</span>
-              <span className="text-xl font-black text-white font-mono">{students.length}</span>
+            <div className="bg-stone-50 border border-stone-200 px-4 py-3 rounded-2xl text-center">
+              <span className="text-[10px] text-stone-500 uppercase font-bold block">Enrolled Learners</span>
+              <span className="text-xl font-black text-stone-900 font-mono">{students.length}</span>
             </div>
-            <div className="bg-slate-950/80 px-4 py-3 rounded-2xl border border-slate-800 text-center">
-              <span className="text-[10px] text-slate-400 uppercase font-bold block">Pending Reviews</span>
-              <span className="text-xl font-black text-amber-400 font-mono">
+            <div className="bg-stone-50 border border-stone-200 px-4 py-3 rounded-2xl text-center">
+              <span className="text-[10px] text-stone-500 uppercase font-bold block">Pending Reviews</span>
+              <span className="text-xl font-black text-[#B45309] font-mono">
                 {submissions.filter((s) => s.status === 'PENDING_TEACHER_REVIEW').length}
               </span>
             </div>
@@ -100,8 +95,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
         </div>
       </div>
 
-      {/* Navigation Tabs */}
-      <div className="flex border-b border-slate-800 pb-2 gap-2">
+      {/* Tabs */}
+      <div className="flex border-b border-stone-200 pb-2 gap-2">
         {[
           { key: 'roster', label: 'Learner Rosters & Personalization', icon: Users },
           { key: 'grading', label: 'Milestone Assessment Queue', icon: CheckSquare },
@@ -115,8 +110,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
               onClick={() => setActiveTab(tab.key as any)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
                 isActive
-                  ? 'bg-emerald-600 text-white shadow-md shadow-emerald-600/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                  ? 'bg-stone-900 text-white shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -128,57 +123,56 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
 
       {/* Tab 1: Learner Rosters & Personalization */}
       {activeTab === 'roster' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <span>Personalized Student Profiles</span>
-              <span className="text-xs text-slate-400 font-normal">({students.length} students)</span>
+        <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-studio space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+            <h2 className="text-sm font-extrabold text-stone-900">
+              Personalized Student Profiles ({students.length} students)
             </h2>
-            <span className="text-xs text-emerald-400 font-mono flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4" /> FERPA Compliant Isolation
+            <span className="text-xs text-stone-600 font-mono flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-[#15803D]" /> FERPA Compliant Access
             </span>
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950 text-slate-400 font-mono text-[10px] uppercase border-b border-slate-800">
+            <table className="w-full text-left text-xs text-stone-700">
+              <thead className="bg-stone-50 text-stone-500 font-mono text-[10px] uppercase border-b border-stone-200">
                 <tr>
                   <th className="py-3 px-4">Student</th>
                   <th className="py-3 px-4">Age / Track</th>
-                  <th className="py-3 px-4">Passion Focus Balance</th>
-                  <th className="py-3 px-4">Completed Lessons</th>
+                  <th className="py-3 px-4">Curriculum Focus Allocation</th>
+                  <th className="py-3 px-4">Completed Lectures</th>
                   <th className="py-3 px-4">COPPA Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60 font-medium">
+              <tbody className="divide-y divide-stone-100 font-medium">
                 {students.map((s) => (
-                  <tr key={s.id} className="hover:bg-slate-800/40 transition-colors">
+                  <tr key={s.id} className="hover:bg-stone-50/70 transition-colors">
                     <td className="py-3.5 px-4">
-                      <div className="font-bold text-white">{s.display_name}</div>
-                      <div className="text-[10px] text-slate-500 font-mono">@{s.username}</div>
+                      <div className="font-bold text-stone-900">{s.display_name}</div>
+                      <div className="text-[10px] text-stone-500 font-mono">@{s.username}</div>
                     </td>
                     <td className="py-3.5 px-4">
                       <div>Age {s.age}</div>
-                      <span className="text-[10px] text-indigo-400 font-mono capitalize">
+                      <span className="text-[10px] text-stone-500 font-mono capitalize">
                         {s.age_track?.replace(/_/g, ' ') || 'General'}
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-pink-400 text-[10px] font-mono">{s.focus_art_ratio}% Art</span>
-                        <div className="w-24 h-2 bg-slate-950 rounded-full overflow-hidden flex">
-                          <div className="bg-pink-500 h-full" style={{ width: `${s.focus_art_ratio}%` }} />
-                          <div className="bg-blue-500 h-full" style={{ width: `${s.focus_math_ratio}%` }} />
+                        <span className="text-[#D94826] text-[10px] font-mono font-bold">{s.focus_art_ratio}% Art</span>
+                        <div className="w-24 h-2 bg-stone-200 rounded-full overflow-hidden flex">
+                          <div className="bg-[#D94826] h-full" style={{ width: `${s.focus_art_ratio}%` }} />
+                          <div className="bg-[#1D4ED8] h-full" style={{ width: `${s.focus_math_ratio}%` }} />
                         </div>
-                        <span className="text-blue-400 text-[10px] font-mono">{s.focus_math_ratio}% Code</span>
+                        <span className="text-[#1D4ED8] text-[10px] font-mono font-bold">{s.focus_math_ratio}% Code</span>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-slate-200">
-                      {s.totalCompletedLessons} lessons
+                    <td className="py-3.5 px-4 font-mono font-bold text-stone-900">
+                      {s.totalCompletedLessons} lectures
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-                        <CheckCircle2 className="w-3 h-3" /> {s.consent_status || 'VERIFIED'}
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> {s.consent_status || 'VERIFIED'}
                       </span>
                     </td>
                   </tr>
@@ -192,10 +186,9 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
       {/* Tab 2: Grading Queue */}
       {activeTab === 'grading' && (
         <div className="space-y-6">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-            <h2 className="text-base font-bold text-white flex items-center justify-between">
-              <span>Authentic Creative Submissions</span>
-              <span className="text-xs font-mono text-slate-400">{submissions.length} total</span>
+          <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-studio space-y-4">
+            <h2 className="text-sm font-extrabold text-stone-900">
+              Authentic Performance Task Submissions ({submissions.length})
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -211,29 +204,29 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
                     }}
                     className={`p-5 rounded-2xl border cursor-pointer transition-all ${
                       selectedSub?.id === sub.id
-                        ? 'bg-emerald-950/40 border-emerald-500 shadow-lg'
-                        : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                        ? 'bg-stone-50 border-stone-900 shadow-sm'
+                        : 'bg-white border-stone-200 hover:border-stone-400'
                     }`}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400">
+                      <span className="text-[10px] font-mono uppercase text-stone-500 font-bold">
                         {sub.course_title}
                       </span>
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          isPending ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'
+                          isPending ? 'bg-amber-100 text-amber-900' : 'bg-emerald-100 text-emerald-900'
                         }`}
                       >
                         {isPending ? 'Pending Review' : 'Graded'}
                       </span>
                     </div>
 
-                    <h3 className="text-sm font-bold text-white mb-1">{sub.artifact_title}</h3>
-                    <p className="text-xs text-slate-400 line-clamp-2 mb-3">{sub.artifact_description}</p>
+                    <h3 className="text-sm font-bold text-stone-900 mb-1">{sub.artifact_title}</h3>
+                    <p className="text-xs text-stone-600 line-clamp-2 mb-3">{sub.artifact_description}</p>
 
-                    <div className="flex items-center justify-between text-[11px] text-slate-400 pt-3 border-t border-slate-800/80">
-                      <span>Submitted by: <strong className="text-slate-200">{sub.student_name}</strong></span>
-                      <span className="font-mono text-indigo-400 font-bold">Auto-Score: {sub.auto_score}%</span>
+                    <div className="flex items-center justify-between text-[11px] text-stone-500 pt-3 border-t border-stone-100">
+                      <span>By: <strong className="text-stone-900">{sub.student_name}</strong></span>
+                      <span className="font-mono text-stone-900 font-bold">Auto-Score: {sub.auto_score}%</span>
                     </div>
                   </div>
                 );
@@ -241,55 +234,55 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
             </div>
           </div>
 
-          {/* Rubric Review Drawer / Modal */}
+          {/* Rubric Review Drawer */}
           {selectedSub && (
-            <div className="bg-slate-900 border border-emerald-500/40 rounded-2xl p-6 shadow-2xl space-y-4">
-              <div className="flex justify-between items-start pb-4 border-b border-slate-800">
+            <div className="bg-white border border-stone-300 rounded-3xl p-6 sm:p-8 shadow-studio space-y-5">
+              <div className="flex justify-between items-start pb-4 border-b border-stone-100">
                 <div>
-                  <span className="text-[10px] font-mono uppercase text-emerald-400 font-bold">
-                    Evaluating Student Artifact
+                  <span className="text-[10px] font-mono uppercase text-stone-500 font-bold">
+                    Evaluating Student Performance Artifact
                   </span>
-                  <h3 className="text-lg font-bold text-white">{selectedSub.artifact_title}</h3>
-                  <p className="text-xs text-slate-400">Author: {selectedSub.student_name} (Age {selectedSub.student_age})</p>
+                  <h3 className="text-lg font-black text-stone-900">{selectedSub.artifact_title}</h3>
+                  <p className="text-xs text-stone-500">Student: {selectedSub.student_name} (Age {selectedSub.student_age})</p>
                 </div>
                 <button
                   onClick={() => setSelectedSub(null)}
-                  className="text-xs text-slate-400 hover:text-white px-2 py-1 rounded bg-slate-800"
+                  className="text-xs text-stone-500 hover:text-stone-900 px-2.5 py-1 rounded bg-stone-100"
                 >
                   Close
                 </button>
               </div>
 
-              <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs text-slate-200 space-y-2">
-                <strong className="text-white block font-bold">Student Artist/Engineer Statement:</strong>
+              <div className="bg-stone-50 p-4 rounded-xl border border-stone-200 text-xs text-stone-800 space-y-2">
+                <strong className="text-stone-900 block font-bold">Artist / Engineer Statement:</strong>
                 <p className="leading-relaxed italic">"{selectedSub.artifact_description}"</p>
                 {selectedSub.artifact_url && (
-                  <div className="pt-2 text-indigo-400 font-mono text-[11px]">
-                    Project URL: <a href={selectedSub.artifact_url} target="_blank" rel="noreferrer" className="underline">{selectedSub.artifact_url}</a>
+                  <div className="pt-2 text-stone-600 font-mono text-[11px]">
+                    Project URL: <a href={selectedSub.artifact_url} target="_blank" rel="noreferrer" className="underline font-bold text-stone-900">{selectedSub.artifact_url}</a>
                   </div>
                 )}
               </div>
 
-              {/* Rubric Criteria Evaluation */}
+              {/* Rubric Criteria */}
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase text-slate-400 tracking-wider">Evaluation Rubric</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <h4 className="text-xs font-bold uppercase text-stone-500 tracking-wider">Evaluation Rubric</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   {selectedSub.performanceTask?.rubric?.map((r: any, i: number) => (
-                    <div key={i} className="bg-slate-950 p-3 rounded-lg border border-slate-800 text-xs">
-                      <div className="flex justify-between items-center text-slate-200 font-semibold mb-1">
+                    <div key={i} className="bg-stone-50 p-3 rounded-xl border border-stone-200 text-xs">
+                      <div className="flex justify-between items-center text-stone-900 font-bold mb-0.5">
                         <span>{r.criteria}</span>
-                        <span className="text-amber-400 font-mono">{r.maxPoints} pts</span>
+                        <span className="text-stone-500 font-mono text-[10px]">{r.maxPoints} pts</span>
                       </div>
-                      <p className="text-[11px] text-slate-400">{r.description}</p>
+                      <p className="text-[11px] text-stone-600">{r.description}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Grade & Feedback Form */}
-              <form onSubmit={handleGradeSubmit} className="space-y-3 pt-2">
+              {/* Grade Form */}
+              <form onSubmit={handleGradeSubmit} className="space-y-4 pt-2">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  <label className="block text-xs font-bold text-stone-800 mb-1">
                     Overall Milestone Score (0 - 100)
                   </label>
                   <input
@@ -299,21 +292,21 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
                     required
                     value={gradeInput}
                     onChange={(e) => setGradeInput(e.target.value)}
-                    className="w-32 bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3 py-2 text-xs text-white font-mono"
+                    className="w-32 bg-stone-50 border border-stone-300 focus:border-stone-900 rounded-xl px-3 py-2 text-xs text-stone-900 font-mono font-bold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">
-                    Personalized Pedagogical Feedback & Encouragement
+                  <label className="block text-xs font-bold text-stone-800 mb-1">
+                    Pedagogical Feedback & Constructive Encouragement
                   </label>
                   <textarea
                     rows={3}
                     required
                     value={feedbackInput}
                     onChange={(e) => setFeedbackInput(e.target.value)}
-                    placeholder="Provide constructive, growth-mindset feedback praising their specific choices..."
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-emerald-500 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none"
+                    placeholder="Provide constructive, growth-mindset feedback praising their specific design decisions..."
+                    className="w-full bg-stone-50 border border-stone-300 focus:border-stone-900 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none"
                   />
                 </div>
 
@@ -321,7 +314,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
                   <button
                     type="submit"
                     disabled={isSubmittingGrade}
-                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/30"
+                    className="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-studio"
                   >
                     <Send className="w-4 h-4" />
                     <span>{isSubmittingGrade ? 'Recording Grade...' : 'Save Grade & Send Feedback'}</span>
@@ -333,33 +326,33 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
         </div>
       )}
 
-      {/* Tab 3: Diagnostic Mastery Heatmap */}
+      {/* Tab 3: Competency Heatmap */}
       {activeTab === 'analytics' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
+        <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-studio space-y-6">
           <div>
-            <h2 className="text-base font-bold text-white">Classroom Diagnostic Mastery Heatmap</h2>
-            <p className="text-xs text-slate-400">Real-time mastery levels across personalized curriculum domains</p>
+            <h2 className="text-base font-extrabold text-stone-900">Classroom Competency Mastery Heatmap</h2>
+            <p className="text-xs text-stone-500">Real-time mastery levels across personalized curriculum tracks</p>
           </div>
 
           <div className="space-y-4">
             {[
-              { domain: 'Geometric Composition & Proportions', percent: 92, status: 'Mastered', count: 14, color: 'bg-emerald-500' },
-              { domain: '12-Tone Color Harmonies & Temperatures', percent: 88, status: 'Mastered', count: 12, color: 'bg-emerald-500' },
-              { domain: 'Islamic Tile Tessellations & Symmetry', percent: 74, status: 'In Progress', count: 10, color: 'bg-amber-500' },
-              { domain: '2D Cartesian Coordinates & Grid Motion', percent: 85, status: 'Mastered', count: 15, color: 'bg-emerald-500' },
-              { domain: 'Velocity Vector Physics & Gravity', percent: 68, status: 'Needs Targeted Support', count: 8, color: 'bg-rose-500' },
-              { domain: 'AABB Collision Detection Algorithms', percent: 78, status: 'In Progress', count: 11, color: 'bg-amber-500' }
+              { domain: 'Geometric Composition & Proportions', percent: 92, count: 14, color: 'bg-emerald-600' },
+              { domain: '12-Tone Color Harmonies & Temperatures', percent: 88, count: 12, color: 'bg-emerald-600' },
+              { domain: 'Islamic Tile Tessellations & Symmetry', percent: 74, count: 10, color: 'bg-amber-600' },
+              { domain: '2D Cartesian Coordinates & Grid Motion', percent: 85, count: 15, color: 'bg-emerald-600' },
+              { domain: 'Velocity Vector Physics & Gravity', percent: 68, count: 8, color: 'bg-[#D94826]' },
+              { domain: 'AABB Collision Detection Algorithms', percent: 78, count: 11, color: 'bg-amber-600' }
             ].map((d, i) => (
-              <div key={i} className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div key={i} className="bg-stone-50 p-4 rounded-xl border border-stone-200 space-y-2">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold text-slate-200">{d.domain}</span>
+                  <span className="font-bold text-stone-900">{d.domain}</span>
                   <div className="flex items-center gap-3">
-                    <span className="text-[10px] text-slate-400">{d.count} learners</span>
-                    <span className="font-mono font-bold text-white">{d.percent}%</span>
+                    <span className="text-[10px] text-stone-500 font-mono">{d.count} learners</span>
+                    <span className="font-mono font-bold text-stone-900">{d.percent}%</span>
                   </div>
                 </div>
 
-                <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden">
+                <div className="w-full h-2.5 bg-stone-200 rounded-full overflow-hidden">
                   <div className={`h-full ${d.color} rounded-full transition-all duration-500`} style={{ width: `${d.percent}%` }} />
                 </div>
               </div>

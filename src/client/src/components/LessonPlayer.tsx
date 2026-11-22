@@ -5,13 +5,13 @@ import {
   PlayCircle,
   FileText,
   Volume2,
-  CheckCircle,
-  Sparkles,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   HelpCircle,
   ArrowRight,
-  Bot
+  Bot,
+  Sparkles
 } from 'lucide-react';
 import { User, LessonDetail } from '../types.js';
 import { fetchLesson, completeLesson } from '../api.js';
@@ -37,17 +37,15 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
 }) => {
   const [currentLessonNum, setCurrentLessonNum] = useState<number>(initialLessonNumber);
   const [lesson, setLesson] = useState<LessonDetail | null>(null);
-  const [activeModality, setActiveModality] = useState<'reader' | 'video' | 'simulation' | 'audio' | 'worksheet'>('reader');
+  const [activeModality, setActiveModality] = useState<'reader' | 'simulation' | 'video' | 'audio' | 'worksheet'>('reader');
   const [pulseChoice, setPulseChoice] = useState<number | null>(null);
   const [pulseAnswered, setPulseAnswered] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
   useEffect(() => {
     setLoading(true);
     setPulseChoice(null);
     setPulseAnswered(false);
-    setIsCompleted(false);
 
     fetchLesson(courseId, currentLessonNum)
       .then((data) => {
@@ -63,7 +61,6 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
   const handleCompleteAndNext = async () => {
     try {
       await completeLesson(courseId, currentLessonNum);
-      setIsCompleted(true);
       if (currentLessonNum < 6) {
         setCurrentLessonNum((prev) => prev + 1);
       } else {
@@ -78,27 +75,27 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
     return (
       <div className="flex-1 flex items-center justify-center p-12">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-xs text-slate-400">Loading personalized lesson track...</p>
+          <div className="w-8 h-8 border-3 border-stone-800 border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs text-stone-500 font-mono">Loading studio lecture...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto w-full px-4 py-6 flex flex-col gap-6">
-      {/* Top Breadcrumb & Quick Nav */}
-      <div className="flex items-center justify-between">
+    <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 flex flex-col gap-6">
+      {/* Top Header & Navigation */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-200">
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-xl"
+          className="flex items-center gap-2 text-xs font-bold text-stone-600 hover:text-stone-900 transition-colors w-fit"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span>Back to Dashboard</span>
+          <span>Course Dashboard</span>
         </button>
 
-        {/* 6-Lesson Tracker Pill Bar */}
-        <div className="flex items-center gap-1.5 bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
+        {/* 6-Lecture Sequence Buttons */}
+        <div className="flex items-center gap-1.5 bg-stone-100 p-1.5 rounded-2xl border border-stone-200">
           {[1, 2, 3, 4, 5, 6].map((num) => {
             const isCurrent = currentLessonNum === num;
             return (
@@ -107,8 +104,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
                 onClick={() => setCurrentLessonNum(num)}
                 className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center ${
                   isCurrent
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/40 ring-2 ring-indigo-400'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-stone-900 text-white shadow-xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/60'
                 }`}
               >
                 {num}
@@ -116,50 +113,47 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
             );
           })}
 
-          <div className="h-5 w-px bg-slate-800 mx-1" />
+          <div className="h-4 w-px bg-stone-300 mx-1" />
 
-          {/* Milestone 7 Button */}
           <button
             onClick={onGoToMilestone}
-            className="px-3 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5"
+            className="px-3 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300/80 rounded-xl text-xs font-bold transition-colors"
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Milestone 7 Test</span>
+            Milestone 7 Test
           </button>
         </div>
 
-        {/* Ask Tutor Trigger */}
         <button
           onClick={onOpenTutor}
-          className="flex items-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-lg shadow-indigo-500/20 transition-all"
+          className="flex items-center gap-2 bg-stone-50 hover:bg-stone-100 border border-stone-300 text-stone-800 px-3.5 py-1.5 rounded-xl text-xs font-bold shadow-xs transition-all w-fit"
         >
-          <Bot className="w-4 h-4" />
+          <Bot className="w-4 h-4 text-[#D94826]" />
           <span>Ask EdBot</span>
         </button>
       </div>
 
-      {/* Lesson Header Banner */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-full bg-gradient-to-l from-indigo-600/10 to-transparent pointer-events-none" />
-
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Lesson Header Card */}
+      <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-studio space-y-3">
+        <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">
-                Lesson {lesson.lessonNumber} of 6
-              </span>
-              <span className="text-xs text-slate-400">• {lesson.durationMinutes} mins</span>
+            <div className="flex items-center gap-2 text-[11px] font-mono text-stone-500 mb-1">
+              <span>Lecture {lesson.lessonNumber} of 6</span>
+              <span>•</span>
+              <span>{lesson.durationMinutes} Minutes</span>
             </div>
-            <h1 className="text-xl md:text-2xl font-extrabold text-white tracking-tight">{lesson.title}</h1>
-            <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">{lesson.sparkHook}</p>
+            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+              {lesson.title}
+            </h1>
+            <p className="text-xs sm:text-sm text-stone-600 mt-2 max-w-2xl leading-relaxed">
+              {lesson.sparkHook}
+            </p>
           </div>
 
-          {/* Key Concept Chips */}
-          <div className="flex flex-wrap gap-1.5 md:max-w-xs justify-start md:justify-end">
+          <div className="flex flex-wrap gap-1.5 md:max-w-xs justify-start md:justify-end pt-1">
             {lesson.keyConcepts.map((concept, idx) => (
               <span
                 key={idx}
-                className="text-[11px] bg-slate-950 text-slate-300 border border-slate-800 px-2.5 py-1 rounded-lg"
+                className="text-[11px] bg-stone-100 text-stone-700 border border-stone-200 px-2.5 py-1 rounded-lg font-medium"
               >
                 {concept}
               </span>
@@ -169,7 +163,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
       </div>
 
       {/* Universal Design for Learning (UDL) Modality Switcher */}
-      <div className="flex border-b border-slate-800 pb-2 gap-2 overflow-x-auto">
+      <div className="flex border-b border-stone-200 pb-2 gap-2 overflow-x-auto">
         {[
           { key: 'reader', label: 'Interactive Reader', icon: BookOpen },
           { key: 'simulation', label: 'Hands-On Simulation', icon: PlayCircle },
@@ -185,8 +179,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
               onClick={() => setActiveModality(tab.key as any)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
+                  ? 'bg-stone-900 text-white shadow-xs'
+                  : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
               }`}
             >
               <Icon className="w-4 h-4" />
@@ -197,28 +191,35 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
       </div>
 
       {/* Modality View Content */}
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl min-h-[380px]">
+      <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-studio min-h-[380px]">
         {/* Modality 1: Interactive Reader */}
         {activeModality === 'reader' && (
-          <div className="prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed space-y-4">
-            <div className="bg-indigo-950/30 border border-indigo-900/40 p-4 rounded-xl flex items-start gap-3">
-              <Sparkles className="w-5 h-5 text-indigo-400 shrink-0 mt-0.5" />
+          <div className="max-w-3xl space-y-6">
+            <div className="bg-stone-50 border border-stone-200 p-4 rounded-2xl flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-[#D94826] shrink-0 mt-0.5" />
               <div>
-                <strong className="text-white text-xs block uppercase font-bold tracking-wide">Lesson Mission</strong>
-                <p className="text-xs text-indigo-200 mt-0.5">{lesson.objective}</p>
+                <strong className="text-xs uppercase font-extrabold text-stone-900 tracking-wide block">
+                  Studio Learning Goal
+                </strong>
+                <p className="text-xs text-stone-600 mt-0.5 leading-relaxed">{lesson.objective}</p>
               </div>
             </div>
 
-            <div className="whitespace-pre-line text-slate-200 bg-slate-950 p-6 rounded-xl border border-slate-800">
+            <div className="text-stone-800 text-sm leading-relaxed whitespace-pre-line font-normal space-y-3">
               {lesson.readerContent}
             </div>
 
-            {/* Vocabulary Drawer */}
-            <div className="mt-6 border-t border-slate-800 pt-4">
-              <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Mastery Vocabulary</h4>
+            {/* Vocabulary Tokens */}
+            <div className="pt-6 border-t border-stone-100 space-y-2">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 block">
+                Foundational Terminology
+              </span>
               <div className="flex flex-wrap gap-2">
                 {lesson.allowedVocab.map((v, i) => (
-                  <span key={i} className="bg-slate-800 text-slate-200 text-xs px-2.5 py-1 rounded-md font-mono">
+                  <span
+                    key={i}
+                    className="bg-stone-100 text-stone-800 border border-stone-200 text-xs px-2.5 py-1 rounded-md font-mono"
+                  >
                     {v}
                   </span>
                 ))}
@@ -227,7 +228,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
           </div>
         )}
 
-        {/* Modality 2: Interactive Simulation Sandbox */}
+        {/* Modality 2: Simulation Sandbox */}
         {activeModality === 'simulation' && (
           <div>
             {lesson.simulationType === 'coordinate_game' ? (
@@ -238,10 +239,10 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
           </div>
         )}
 
-        {/* Modality 3: Video Player */}
+        {/* Modality 3: Video Masterclass */}
         {activeModality === 'video' && (
           <div className="flex flex-col items-center">
-            <div className="w-full max-w-3xl aspect-video rounded-2xl overflow-hidden bg-black border border-slate-800 shadow-2xl">
+            <div className="w-full max-w-3xl aspect-video rounded-2xl overflow-hidden bg-black border border-stone-200 shadow-md">
               <iframe
                 src={lesson.videoUrl || 'https://www.youtube-nocookie.com/embed/Qj1FK8n7WgY'}
                 title={lesson.videoTitle || 'Educational Video'}
@@ -250,37 +251,35 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
                 allowFullScreen
               />
             </div>
-            <p className="text-xs text-slate-400 mt-3 text-center">{lesson.videoTitle}</p>
+            <p className="text-xs text-stone-500 mt-3 text-center">{lesson.videoTitle}</p>
           </div>
         )}
 
         {/* Modality 4: Audio Companion */}
         {activeModality === 'audio' && (
-          <div className="max-w-2xl mx-auto bg-slate-950 border border-slate-800 rounded-2xl p-6 text-center space-y-4">
-            <div className="w-16 h-16 bg-purple-500/10 text-purple-400 rounded-full flex items-center justify-center mx-auto shadow-inner">
-              <Volume2 className="w-8 h-8" />
+          <div className="max-w-2xl mx-auto bg-stone-50 border border-stone-200 rounded-2xl p-6 text-center space-y-4">
+            <div className="w-12 h-12 bg-stone-200 text-stone-700 rounded-full flex items-center justify-center mx-auto">
+              <Volume2 className="w-6 h-6" />
             </div>
-            <h3 className="font-bold text-slate-100 text-base">Podcast Narrative Companion</h3>
-            <p className="text-xs text-slate-300 leading-relaxed bg-slate-900 p-4 rounded-xl border border-slate-800 text-left">
-              "{lesson.audioSummaryText || 'Tune into this audio briefing to absorb the core concepts through spoken storytelling and music sound design.'}"
+            <h3 className="font-extrabold text-stone-900 text-sm">Audio Synthesis Briefing</h3>
+            <p className="text-xs text-stone-600 bg-white p-4 rounded-xl border border-stone-200 text-left leading-relaxed">
+              "{lesson.audioSummaryText}"
             </p>
-            <div className="flex items-center justify-center gap-4 pt-2">
-              <button className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-lg shadow-purple-600/30">
-                <PlayCircle className="w-4 h-4" />
-                <span>Play 2-Min Audio Briefing</span>
-              </button>
-            </div>
+            <button className="px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-xs inline-flex items-center gap-2">
+              <PlayCircle className="w-4 h-4" />
+              <span>Listen to 2-Min Audio Companion</span>
+            </button>
           </div>
         )}
 
         {/* Modality 5: Printable Worksheet */}
         {activeModality === 'worksheet' && (
-          <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 font-mono text-xs text-slate-300 leading-relaxed whitespace-pre-wrap">
-            <div className="flex justify-between items-center pb-4 border-b border-slate-800 mb-4">
-              <span className="font-bold text-white uppercase">{lesson.worksheetTitle}</span>
+          <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 font-mono text-xs text-stone-800 leading-relaxed whitespace-pre-wrap">
+            <div className="flex justify-between items-center pb-4 border-b border-stone-200 mb-4">
+              <span className="font-bold uppercase text-stone-900">{lesson.worksheetTitle}</span>
               <button
                 onClick={() => window.print()}
-                className="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded-lg text-[11px] transition-colors"
+                className="bg-white border border-stone-300 hover:bg-stone-100 text-stone-800 px-3 py-1 rounded-lg text-[11px] font-sans font-bold"
               >
                 Print / Save PDF
               </button>
@@ -291,33 +290,31 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
       </div>
 
       {/* Comprehension Pulse Check (Formative Assessment) */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-        <div className="flex items-center gap-2.5 mb-4">
-          <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg">
-            <HelpCircle className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="text-sm font-bold text-slate-100">Comprehension Pulse Check</h3>
-            <p className="text-[11px] text-slate-400">Zero penalty. Test your intuition before moving forward!</p>
-          </div>
+      <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-studio space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-stone-100">
+          <HelpCircle className="w-4 h-4 text-[#D94826]" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-stone-900">
+            Comprehension Pulse Check
+          </h2>
+          <span className="text-[11px] text-stone-500 font-normal ml-auto">Zero-Penalty Check</span>
         </div>
 
-        <p className="text-xs font-medium text-slate-200 mb-4">{lesson.pulseQuestion.question}</p>
+        <p className="text-xs sm:text-sm font-semibold text-stone-900">{lesson.pulseQuestion.question}</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {lesson.pulseQuestion.options.map((opt, idx) => {
             const isSelected = pulseChoice === idx;
             const isCorrect = idx === lesson.pulseQuestion.correctIndex;
 
-            let cardStyle = 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700';
+            let cardStyle = 'bg-stone-50 border-stone-200 text-stone-700 hover:border-stone-400';
             if (pulseAnswered) {
               if (isCorrect) {
-                cardStyle = 'bg-emerald-950/40 border-emerald-500 text-emerald-200 shadow-md shadow-emerald-500/20';
+                cardStyle = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-bold';
               } else if (isSelected) {
-                cardStyle = 'bg-rose-950/40 border-rose-500 text-rose-200';
+                cardStyle = 'bg-rose-50 border-rose-400 text-rose-950';
               }
             } else if (isSelected) {
-              cardStyle = 'bg-indigo-950/40 border-indigo-500 text-white';
+              cardStyle = 'bg-stone-200 border-stone-900 text-stone-900 font-bold';
             }
 
             return (
@@ -328,12 +325,10 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
                   setPulseChoice(idx);
                   setPulseAnswered(true);
                 }}
-                className={`p-3.5 rounded-xl border text-left text-xs font-medium transition-all ${cardStyle}`}
+                className={`p-3.5 rounded-xl border text-left text-xs transition-all flex items-start gap-2.5 ${cardStyle}`}
               >
-                <div className="flex items-start gap-2.5">
-                  <span className="font-mono text-[11px] opacity-60">[{String.fromCharCode(65 + idx)}]</span>
-                  <span>{opt}</span>
-                </div>
+                <span className="font-mono text-[11px] opacity-60">[{String.fromCharCode(65 + idx)}]</span>
+                <span>{opt}</span>
               </button>
             );
           })}
@@ -341,16 +336,16 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
 
         {pulseAnswered && (
           <div
-            className={`p-3.5 rounded-xl text-xs flex items-start gap-2.5 ${
+            className={`p-4 rounded-xl text-xs flex items-start gap-2.5 border ${
               pulseChoice === lesson.pulseQuestion.correctIndex
-                ? 'bg-emerald-950/30 border border-emerald-900/40 text-emerald-300'
-                : 'bg-amber-950/30 border border-amber-900/40 text-amber-300'
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
+                : 'bg-amber-50 border-amber-200 text-amber-900'
             }`}
           >
-            <Sparkles className="w-4 h-4 shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
               <strong className="block font-bold">
-                {pulseChoice === lesson.pulseQuestion.correctIndex ? 'Excellent intuition! 🌟' : 'Growth Tip:'}
+                {pulseChoice === lesson.pulseQuestion.correctIndex ? 'Excellent deduction!' : 'Pedagogical Clue:'}
               </strong>
               <span>{lesson.pulseQuestion.hint}</span>
             </div>
@@ -358,22 +353,22 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
         )}
       </div>
 
-      {/* Bottom Action Footer */}
+      {/* Bottom Footer Actions */}
       <div className="flex items-center justify-between pt-2">
         <button
           disabled={currentLessonNum <= 1}
           onClick={() => setCurrentLessonNum((prev) => Math.max(prev - 1, 1))}
-          className="px-4 py-2 bg-slate-900 hover:bg-slate-800 disabled:opacity-30 text-slate-300 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors border border-slate-800"
+          className="px-4 py-2.5 bg-white hover:bg-stone-50 disabled:opacity-30 text-stone-700 rounded-xl text-xs font-bold flex items-center gap-2 border border-stone-300"
         >
           <ChevronLeft className="w-4 h-4" />
-          <span>Previous Lesson</span>
+          <span>Previous Lecture</span>
         </button>
 
         <button
           onClick={handleCompleteAndNext}
-          className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition-all"
+          className="px-6 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-studio transition-all"
         >
-          <span>{currentLessonNum < 6 ? 'Complete & Proceed to Next Lesson' : 'Unlock Milestone 7 Assessment'}</span>
+          <span>{currentLessonNum < 6 ? 'Complete & Open Next Lecture' : 'Proceed to Milestone 7 Evaluation'}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>

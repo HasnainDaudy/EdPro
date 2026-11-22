@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Lock, User as UserIcon, Shield, Sparkles, CheckCircle2 } from 'lucide-react';
+import { X, Lock, User as UserIcon, ShieldCheck } from 'lucide-react';
 import { User } from '../types.js';
 import { loginUser, registerUser } from '../api.js';
 
@@ -57,140 +57,141 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-in fade-in duration-150">
+      <div className="bg-white border border-stone-200 rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="absolute top-5 right-5 p-1.5 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Modal Header */}
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-2xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30 flex items-center justify-center">
-            <Sparkles className="w-5 h-5" />
+          <div className="w-10 h-10 rounded-xl bg-stone-900 text-white flex items-center justify-center font-black text-sm">
+            EP
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">{isRegister ? 'Join EdPro' : 'Welcome to EdPro'}</h2>
-            <p className="text-xs text-slate-400">
-              {isRegister ? 'Create your personalized learner account' : 'Sign in to continue your track'}
+            <h2 className="text-lg font-black text-stone-900">
+              {isRegister ? 'Join EdPro' : 'Sign in to EdPro'}
+            </h2>
+            <p className="text-xs text-stone-500">
+              {isRegister ? 'Set up your personalized learner profile' : 'Access your active learning tracks'}
             </p>
           </div>
         </div>
 
         {/* 1-Click Demo Profiles */}
         {!isRegister && (
-          <div className="bg-slate-950 p-3 rounded-2xl border border-slate-800 mb-5">
-            <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block mb-2">
+          <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 mb-5">
+            <span className="text-[10px] font-mono uppercase text-stone-500 font-bold block mb-2">
               Instant 1-Click Demo Profiles
             </span>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setDemoAccount('leo_artist', 'EdProPass123!')}
-                className="p-2 rounded-xl bg-slate-900 hover:bg-pink-950/40 border border-slate-800 hover:border-pink-500/40 text-center transition-all"
+                className="p-2 rounded-xl bg-white hover:bg-orange-50 border border-stone-200 hover:border-[#D94826] text-center transition-all shadow-2xs"
               >
-                <span className="text-xs font-bold text-pink-300 block">Leo Chen</span>
-                <span className="text-[9px] text-slate-400 font-mono">Student (Art)</span>
+                <span className="text-xs font-bold text-stone-900 block">Leo Chen</span>
+                <span className="text-[9px] text-[#D94826] font-mono font-bold">Art (11)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setDemoAccount('maya_games', 'EdProPass123!')}
-                className="p-2 rounded-xl bg-slate-900 hover:bg-blue-950/40 border border-slate-800 hover:border-blue-500/40 text-center transition-all"
+                className="p-2 rounded-xl bg-white hover:bg-blue-50 border border-stone-200 hover:border-[#1D4ED8] text-center transition-all shadow-2xs"
               >
-                <span className="text-xs font-bold text-blue-300 block">Maya R.</span>
-                <span className="text-[9px] text-slate-400 font-mono">Student (Game)</span>
+                <span className="text-xs font-bold text-stone-900 block">Maya R.</span>
+                <span className="text-[9px] text-[#1D4ED8] font-mono font-bold">Game (12)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setDemoAccount('teacher_carter', 'EdProPass123!')}
-                className="p-2 rounded-xl bg-slate-900 hover:bg-emerald-950/40 border border-slate-800 hover:border-emerald-500/40 text-center transition-all"
+                className="p-2 rounded-xl bg-white hover:bg-emerald-50 border border-stone-200 hover:border-[#15803D] text-center transition-all shadow-2xs"
               >
-                <span className="text-xs font-bold text-emerald-300 block">Ms. Carter</span>
-                <span className="text-[9px] text-slate-400 font-mono">Teacher</span>
+                <span className="text-xs font-bold text-stone-900 block">Ms. Carter</span>
+                <span className="text-[9px] text-[#15803D] font-mono font-bold">Teacher</span>
               </button>
             </div>
           </div>
         )}
 
-        {/* Error Alert */}
         {error && (
-          <div className="bg-rose-950/50 border border-rose-900/60 text-rose-300 text-xs p-3 rounded-xl mb-4">
+          <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs p-3 rounded-xl mb-4">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Username</label>
+            <label className="block text-xs font-bold text-stone-700 mb-1">Username</label>
             <input
               type="text"
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               placeholder="e.g. leo_artist"
-              className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none"
+              className="w-full bg-stone-50 border border-stone-200 focus:border-stone-900 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
+            <label className="block text-xs font-bold text-stone-700 mb-1">Password</label>
             <input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none"
+              className="w-full bg-stone-50 border border-stone-200 focus:border-stone-900 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none"
             />
           </div>
 
           {isRegister && (
             <>
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">Display Name</label>
+                <label className="block text-xs font-bold text-stone-700 mb-1">Full Name or Pseudonym</label>
                 <input
                   type="text"
                   required
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="e.g. Leo C."
-                  className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none"
+                  className="w-full bg-stone-50 border border-stone-200 focus:border-stone-900 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Role</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">Account Role</label>
                   <select
                     value={role}
                     onChange={(e) => setRole(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-3 py-2 text-xs text-white focus:outline-none"
+                    className="w-full bg-stone-50 border border-stone-200 focus:border-stone-900 rounded-xl px-3 py-2 text-xs text-stone-900 focus:outline-none"
                   >
-                    <option value="STUDENT">Student / Kid</option>
+                    <option value="STUDENT">Student / Learner</option>
                     <option value="TEACHER">Teacher / Coach</option>
-                    <option value="ADMIN">School Admin</option>
+                    <option value="ADMIN">School Administrator</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Age ({age} yrs)</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">Age ({age} yrs)</label>
                   <input
                     type="range"
                     min="6"
                     max="17"
                     value={age}
                     onChange={(e) => setAge(parseInt(e.target.value, 10))}
-                    className="w-full accent-indigo-500 cursor-pointer mt-2"
+                    className="w-full accent-stone-900 cursor-pointer mt-2"
                   />
                 </div>
               </div>
 
               {age < 13 && (
-                <div className="bg-emerald-950/30 border border-emerald-900/40 p-2.5 rounded-xl text-[11px] text-emerald-300 flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-[11px] text-emerald-900 flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
                   <span>COPPA Protected: Zero email collected, school official consent applied.</span>
                 </div>
               )}
@@ -200,9 +201,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold shadow-md shadow-indigo-600/30 transition-all mt-2"
+            className="w-full py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold shadow-studio transition-all mt-2"
           >
-            {loading ? 'Authenticating...' : isRegister ? 'Create My Account' : 'Sign In'}
+            {loading ? 'Authenticating...' : isRegister ? 'Create Account' : 'Sign In'}
           </button>
         </form>
 
@@ -210,7 +211,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onAuthSuc
           <button
             type="button"
             onClick={() => setIsRegister(!isRegister)}
-            className="text-xs text-indigo-400 hover:text-indigo-300 transition-colors"
+            className="text-xs text-stone-600 hover:text-stone-900 font-semibold transition-colors"
           >
             {isRegister ? 'Already have an account? Sign in' : "Don't have an account? Register free"}
           </button>

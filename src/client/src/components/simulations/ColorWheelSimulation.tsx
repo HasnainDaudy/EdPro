@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Palette, Sparkles, RefreshCw } from 'lucide-react';
+import { Palette, Sparkles } from 'lucide-react';
 
 interface ColorWheelSimulationProps {
   config?: Record<string, any>;
@@ -13,34 +13,36 @@ export const ColorWheelSimulation: React.FC<ColorWheelSimulationProps> = ({ conf
   const triadic1 = (selectedHue + 120) % 360;
   const triadic2 = (selectedHue + 240) % 360;
 
-  const baseColor = `hsl(${selectedHue}, 90%, 55%)`;
-  const compColor = `hsl(${complementaryHue}, 90%, 55%)`;
-  const tri1Color = `hsl(${triadic1}, 90%, 55%)`;
-  const tri2Color = `hsl(${triadic2}, 90%, 55%)`;
+  const baseColor = `hsl(${selectedHue}, 85%, 52%)`;
+  const compColor = `hsl(${complementaryHue}, 85%, 52%)`;
+  const tri1Color = `hsl(${triadic1}, 85%, 52%)`;
+  const tri2Color = `hsl(${triadic2}, 85%, 52%)`;
 
   const hues = [0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330];
 
   return (
-    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+    <div className="bg-white border border-stone-200 rounded-2xl p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-stone-100">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-pink-500/10 text-pink-400 rounded-xl">
+          <div className="p-2.5 bg-orange-50 text-[#D94826] rounded-xl border border-orange-100">
             <Palette className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="font-bold text-slate-100 text-lg">Interactive 12-Tone Harmonic Color Studio</h3>
-            <p className="text-xs text-slate-400">Discover optical contrast, geometric symmetry, and emotional color temperatures</p>
+            <h3 className="font-extrabold text-stone-900 text-base">Interactive 12-Tone Harmonic Studio</h3>
+            <p className="text-xs text-stone-500">Calculate optical contrast, 180° geometric symmetry, and color temperatures</p>
           </div>
         </div>
 
         {/* Harmony Mode Selector */}
-        <div className="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+        <div className="flex bg-stone-100 p-1 rounded-xl border border-stone-200 text-xs font-semibold">
           {(['complementary', 'triadic', 'analogous'] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setActiveHarmony(mode)}
               className={`px-3 py-1.5 rounded-lg capitalize transition-all ${
-                activeHarmony === mode ? 'bg-pink-600 text-white font-semibold shadow-md' : 'text-slate-400 hover:text-slate-200'
+                activeHarmony === mode
+                  ? 'bg-white text-stone-900 font-bold shadow-xs'
+                  : 'text-stone-500 hover:text-stone-900'
               }`}
             >
               {mode}
@@ -50,22 +52,23 @@ export const ColorWheelSimulation: React.FC<ColorWheelSimulationProps> = ({ conf
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-        {/* Visual Wheel Circle */}
+        {/* Interactive 360° Color Wheel Circle */}
         <div className="flex flex-col items-center">
           <div className="relative w-64 h-64 flex items-center justify-center">
-            {/* Center preview swatch */}
+            {/* Center Swatch Card */}
             <div
-              className="w-24 h-24 rounded-full shadow-2xl border-4 border-slate-800 flex flex-col items-center justify-center z-10 transition-colors duration-300"
+              className="w-24 h-24 rounded-full shadow-md border-4 border-white flex flex-col items-center justify-center z-10 transition-colors duration-300"
               style={{ backgroundColor: baseColor }}
             >
-              <Sparkles className="w-6 h-6 text-white drop-shadow-md" />
-              <span className="text-[10px] font-bold text-white drop-shadow-md mt-1">{selectedHue}° Hue</span>
+              <span className="text-[11px] font-bold text-white drop-shadow-md">
+                {selectedHue}° HUE
+              </span>
             </div>
 
-            {/* 12 Outer Hue Buttons arranged in a circle */}
+            {/* 12 Outer Hue Buttons */}
             {hues.map((h, i) => {
               const angleRad = (i * 30 - 90) * (Math.PI / 180);
-              const radius = 100;
+              const radius = 104;
               const x = Math.round(radius * Math.cos(angleRad));
               const y = Math.round(radius * Math.sin(angleRad));
               const isSelected = selectedHue === h;
@@ -75,11 +78,15 @@ export const ColorWheelSimulation: React.FC<ColorWheelSimulationProps> = ({ conf
                 <button
                   key={h}
                   onClick={() => setSelectedHue(h)}
-                  className={`absolute w-9 h-9 rounded-full transform -translate-x-1/2 -translate-y-1/2 transition-transform hover:scale-125 focus:outline-none ${
-                    isSelected ? 'ring-4 ring-white scale-125 z-20 shadow-lg' : isOpposite ? 'ring-2 ring-pink-400 scale-110' : 'opacity-85 hover:opacity-100'
+                  className={`absolute w-8 h-8 rounded-full transform -translate-x-1/2 -translate-y-1/2 transition-all hover:scale-125 focus:outline-none ${
+                    isSelected
+                      ? 'ring-3 ring-stone-900 scale-125 z-20 shadow-md'
+                      : isOpposite
+                      ? 'ring-2 ring-stone-400 scale-110'
+                      : 'opacity-90 hover:opacity-100 border border-white'
                   }`}
                   style={{
-                    backgroundColor: `hsl(${h}, 90%, 55%)`,
+                    backgroundColor: `hsl(${h}, 85%, 52%)`,
                     left: `calc(50% + ${x}px)`,
                     top: `calc(50% + ${y}px)`
                   }}
@@ -89,62 +96,58 @@ export const ColorWheelSimulation: React.FC<ColorWheelSimulationProps> = ({ conf
             })}
           </div>
 
-          <p className="text-xs text-slate-500 mt-4 text-center">
-            Click any color circle around the 360° wheel to observe its optical partner!
+          <p className="text-[11px] text-stone-500 mt-4 text-center font-mono">
+            Click any color point along the 360° chromatic circle
           </p>
         </div>
 
-        {/* Live Canvas / Visual Composition Balance */}
-        <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 flex flex-col gap-4">
-          <h4 className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-            <span>Visual Composition Preview</span>
-            <span className="text-xs bg-slate-800 text-pink-300 px-2 py-0.5 rounded-full font-mono">
-              {activeHarmony.toUpperCase()}
-            </span>
-          </h4>
+        {/* Studio Composition Preview */}
+        <div className="bg-stone-50 border border-stone-200 rounded-2xl p-5 space-y-4">
+          <div className="flex justify-between items-center text-xs">
+            <span className="font-bold text-stone-900">Compositional Balance Canvas</span>
+            <span className="font-mono text-stone-500 font-bold uppercase">{activeHarmony}</span>
+          </div>
 
-          {/* Dynamic Mock Poster / Artwork */}
+          {/* Visual Canvas Block */}
           <div
-            className="w-full h-44 rounded-xl relative overflow-hidden flex flex-col justify-between p-4 shadow-inner border border-slate-800 transition-colors duration-500"
+            className="w-full h-44 rounded-xl relative overflow-hidden flex flex-col justify-between p-4 shadow-sm border border-stone-200 transition-colors duration-300"
             style={{ backgroundColor: baseColor }}
           >
-            {/* Background geometric shapes */}
+            {/* Geometric balance elements */}
             <div
-              className="absolute -right-10 -bottom-10 w-40 h-40 rounded-full opacity-90 transition-colors duration-500 shadow-2xl"
+              className="absolute -right-8 -bottom-8 w-36 h-36 rounded-full opacity-95 transition-colors duration-300 shadow-md"
               style={{ backgroundColor: activeHarmony === 'triadic' ? tri1Color : compColor }}
             />
             <div
-              className="absolute left-8 bottom-3 w-16 h-16 transform rotate-45 opacity-80 transition-colors duration-500"
+              className="absolute left-6 bottom-3 w-14 h-14 transform rotate-45 opacity-80 transition-colors duration-300"
               style={{ backgroundColor: activeHarmony === 'triadic' ? tri2Color : compColor }}
             />
 
-            {/* Poster Typography */}
-            <div className="relative z-10 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg w-fit border border-slate-700/50">
-              <span className="text-xs font-bold tracking-wider uppercase text-white">Dominant Focal Tone</span>
+            <div className="relative z-10 bg-white/95 px-3 py-1 rounded-md w-fit border border-stone-200 shadow-xs">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-900">
+                Primary Ground
+              </span>
             </div>
 
             <div className="relative z-10 flex justify-between items-end">
               <div
-                className="px-3 py-1 rounded-md text-xs font-bold shadow-md transition-colors duration-500"
+                className="px-3 py-1 rounded-md text-[11px] font-bold shadow-xs transition-colors duration-300"
                 style={{
                   backgroundColor: compColor,
-                  color: selectedHue > 40 && selectedHue < 180 ? '#0f172a' : '#ffffff'
+                  color: selectedHue > 40 && selectedHue < 180 ? '#18181b' : '#ffffff'
                 }}
               >
                 180° Complement Accent
               </div>
-              <span className="text-[11px] font-mono text-slate-200 bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm">
+              <span className="text-[10px] font-mono bg-white/90 text-stone-800 px-2 py-0.5 rounded border border-stone-200">
                 Golden Ratio (62% / 38%)
               </span>
             </div>
           </div>
 
-          <div className="text-xs text-slate-400 bg-slate-900/60 p-3 rounded-lg border border-slate-800 leading-relaxed">
-            <strong className="text-slate-200">Pedagogical Insight:</strong> Notice how placing{' '}
-            <span className="font-semibold text-pink-300">
-              HSL({selectedHue}°)
-            </span>{' '}
-            directly adjacent to its optical complement creates simultaneous contrast without causing eye strain. This is the exact formula Renaissance masters utilized to make halos and focal points shine!
+          <div className="text-xs text-stone-600 bg-white p-3.5 rounded-xl border border-stone-200 leading-relaxed">
+            <strong className="text-stone-900 block mb-0.5">Studio Geometry Note:</strong>
+            Opposite colors on the 360° circle stimulate adjacent cones in the human retina, producing dynamic optical contrast without eye fatigue.
           </div>
         </div>
       </div>

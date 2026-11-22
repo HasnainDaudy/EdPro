@@ -10,7 +10,7 @@ import { MilestoneTest } from './components/MilestoneTest.js';
 import { TeacherDashboard } from './components/TeacherDashboard.js';
 import { AdminPrivacyPortal } from './components/AdminPrivacyPortal.js';
 import { SocraticTutorDrawer } from './components/SocraticTutorDrawer.js';
-import { Sparkles, Github, Shield, Heart } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -68,17 +68,17 @@ export const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-[#FAFAF8] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-mono text-slate-400">Loading EdPro...</span>
+          <div className="w-8 h-8 border-3 border-stone-800 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-mono text-stone-500">Loading EdPro Studio...</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100">
+    <div className="min-h-screen flex flex-col bg-[#FAFAF8] text-stone-900">
       <Navbar
         user={user}
         onOpenAuth={() => setIsAuthOpen(true)}
@@ -165,21 +165,21 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* Open Source Footer */}
-      <footer className="bg-slate-950 border-t border-slate-900 py-6 px-4 text-xs text-slate-500">
+      {/* Clean Studio Footer */}
+      <footer className="bg-white border-t border-stone-200 py-6 px-4 sm:px-6 text-xs text-stone-500">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-300">EdPro</span>
+          <div className="flex items-center gap-2 font-medium">
+            <span className="font-bold text-stone-900">EdPro</span>
             <span>•</span>
-            <span>AGPL-3.0 Open-Source Education Infrastructure</span>
+            <span>AGPL-3.0 Open-Source K-12 Educational Infrastructure</span>
           </div>
 
           <div className="flex items-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1 text-emerald-400">
-              <Shield className="w-3.5 h-3.5" /> COPPA & FERPA Standard
+            <span className="flex items-center gap-1.5 text-emerald-800 font-semibold">
+              <Shield className="w-3.5 h-3.5 text-emerald-700" /> COPPA & FERPA Standard
             </span>
             <span>•</span>
-            <span>Zero Third-Party Trackers</span>
+            <span>Zero Third-Party Advertising Trackers</span>
           </div>
         </div>
       </footer>

@@ -3,23 +3,21 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    color: #18181b;
+    background-color: #fafaf8;
   }
   code, pre {
     font-family: 'JetBrains Mono', monospace;
   }
 }
 
-@keyframes pulseGlow {
-  0%, 100% {
-    box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 30px rgba(99, 102, 241, 0.8);
-  }
+/* Studio natural depth shadows */
+.shadow-studio {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
-.glow-subtle {
-  animation: pulseGlow 3s infinite ease-in-out;
+.shadow-studio-lg {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), 0 12px 28px -4px rgba(0, 0, 0, 0.05);
 }
 
 /* Custom scrollbar for chat & lesson reader */
@@ -28,12 +26,12 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(15, 23, 42, 0.6);
+  background: #f4f4f0;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(71, 85, 105, 0.5);
+  background: #d4d4d8;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.7);
+  background: #a1a1aa;
 }

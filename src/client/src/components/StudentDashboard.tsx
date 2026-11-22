@@ -5,13 +5,13 @@ import {
   Music,
   Compass,
   Sliders,
-  Sparkles,
   Flame,
   ArrowRight,
   BookOpen,
   Award,
   CheckCircle2,
-  Clock
+  Clock,
+  Sparkles
 } from 'lucide-react';
 import { User, Course } from '../types.js';
 import { fetchCourses, updateProfile } from '../api.js';
@@ -66,116 +66,118 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
     }
   };
 
-  const getPassionIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Palette':
-        return <Palette className="w-5 h-5 text-pink-400" />;
-      case 'Gamepad2':
-        return <Gamepad2 className="w-5 h-5 text-blue-400" />;
-      default:
-        return <Music className="w-5 h-5 text-purple-400" />;
+  const getPassionAccent = (cluster: string) => {
+    if (cluster.includes('Visual Arts')) {
+      return {
+        icon: <Palette className="w-5 h-5 text-[#D94826]" />,
+        border: 'border-t-4 border-t-[#D94826]',
+        badge: 'bg-orange-50 text-[#D94826]'
+      };
+    } else if (cluster.includes('Game Design')) {
+      return {
+        icon: <Gamepad2 className="w-5 h-5 text-[#1D4ED8]" />,
+        border: 'border-t-4 border-t-[#1D4ED8]',
+        badge: 'bg-blue-50 text-[#1D4ED8]'
+      };
+    } else {
+      return {
+        icon: <Music className="w-5 h-5 text-[#B45309]" />,
+        border: 'border-t-4 border-t-[#B45309]',
+        badge: 'bg-amber-50 text-[#B45309]'
+      };
     }
   };
 
   return (
-    <div className="max-w-6xl mx-auto w-full px-4 py-8 space-y-8">
-      {/* Student Welcome Banner */}
-      <div className="bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-slate-900 border border-indigo-500/30 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-full bg-gradient-to-l from-indigo-500/10 to-transparent pointer-events-none" />
-
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+    <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 space-y-8">
+      {/* Student Welcome Header */}
+      <div className="bg-white border border-stone-200 rounded-3xl p-6 sm:p-8 shadow-studio space-y-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-[11px] font-mono uppercase tracking-wider bg-indigo-500/20 text-indigo-300 font-bold px-2.5 py-0.5 rounded-full">
-                Personalized Learning Pathway
-              </span>
-              <span className="text-xs text-slate-400">• Age {user.age || 11}</span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-black text-white tracking-tight">
-              Welcome back, {user.displayName}! 👋
+            <h1 className="text-2xl sm:text-3xl font-black text-stone-900 tracking-tight">
+              Learning Studio: {user.displayName}
             </h1>
-            <p className="text-xs md:text-sm text-slate-300 mt-2 max-w-xl leading-relaxed">
-              We personalize your education around what makes you curious. If algebra drills aren't your passion, you master proportions, symmetry, and logic through <span className="text-pink-400 font-semibold">Visual Arts</span> and <span className="text-blue-400 font-semibold">Game Design</span>!
+            <p className="text-xs sm:text-sm text-stone-600 mt-1 max-w-xl leading-relaxed">
+              Your personalized curriculum prioritizes applied creative practice over abstract memorization. Geometry, spatial logic, and vectors unfold naturally through your studio work.
             </p>
           </div>
 
-          {/* Gamified Stats */}
-          <div className="flex items-center gap-3 bg-slate-950/70 p-3 rounded-2xl border border-slate-800">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/10 rounded-xl border border-amber-500/20">
-              <Flame className="w-5 h-5 text-amber-400" />
-              <div>
-                <span className="text-[10px] uppercase text-slate-400 block font-bold">Streak</span>
-                <span className="text-sm font-black text-amber-400 font-mono">4 Days 🔥</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-500/10 rounded-xl border border-indigo-500/20">
-              <Sparkles className="w-5 h-5 text-indigo-400" />
-              <div>
-                <span className="text-[10px] uppercase text-slate-400 block font-bold">Level</span>
-                <span className="text-sm font-black text-indigo-400 font-mono">Artisan 3</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Focus Allocation Slider: Passion vs Abstract Core */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          {/* Clean Metric Badges (Zero Emojis) */}
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-purple-500/10 text-purple-400 rounded-xl">
-              <Sliders className="w-5 h-5" />
+            <div className="bg-stone-50 border border-stone-200 px-4 py-2.5 rounded-2xl flex items-center gap-2.5">
+              <Flame className="w-4 h-4 text-[#D94826]" />
+              <div>
+                <span className="text-[10px] uppercase font-bold text-stone-500 block">Consecutive Days</span>
+                <span className="text-xs font-mono font-bold text-stone-900">4 Active Sessions</span>
+              </div>
             </div>
-            <div>
-              <h3 className="font-bold text-white text-sm">Personalized Focus Allocation</h3>
-              <p className="text-xs text-slate-400">
-                You control the balance between Creative Passion Projects and Applied Core Studies
-              </p>
+
+            <div className="bg-stone-50 border border-stone-200 px-4 py-2.5 rounded-2xl flex items-center gap-2.5">
+              <Award className="w-4 h-4 text-[#1D4ED8]" />
+              <div>
+                <span className="text-[10px] uppercase font-bold text-stone-500 block">Current Standing</span>
+                <span className="text-xs font-mono font-bold text-stone-900">Artisan Level 3</span>
+              </div>
             </div>
           </div>
-          {isSavingFocus && <span className="text-xs font-mono text-indigo-400 animate-pulse">Saving balance...</span>}
         </div>
 
-        <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3">
-          <div className="flex justify-between items-center text-xs font-bold">
-            <span className="text-pink-400 flex items-center gap-1.5">
-              <Palette className="w-4 h-4" /> Creative Arts & Design ({focusArt}%)
-            </span>
-            <span className="text-blue-400 flex items-center gap-1.5">
-              Applied Math & Logic ({focusMath}%) <Gamepad2 className="w-4 h-4" />
-            </span>
+        {/* Focus Allocation Slider */}
+        <div className="mt-6 pt-6 border-t border-stone-100 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Sliders className="w-4 h-4 text-stone-600" />
+              <h2 className="text-xs font-bold text-stone-900">Curriculum Focus Allocation</h2>
+            </div>
+            <div className="text-xs font-mono">
+              {isSavingFocus ? (
+                <span className="text-[#D94826]">Updating profile...</span>
+              ) : (
+                <span className="text-stone-500">
+                  <strong className="text-[#D94826]">{focusArt}%</strong> Creative Arts /{' '}
+                  <strong className="text-[#1D4ED8]">{focusMath}%</strong> Applied Math
+                </span>
+              )}
+            </div>
           </div>
 
-          <input
-            type="range"
-            min="20"
-            max="80"
-            step="5"
-            value={focusArt}
-            onChange={(e) => handleFocusSliderChange(parseInt(e.target.value, 10))}
-            className="w-full h-2.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
-          />
+          <div className="bg-stone-50 p-4 rounded-2xl border border-stone-200 space-y-2">
+            <div className="w-full h-3 bg-stone-200 rounded-full overflow-hidden flex shadow-inner">
+              <div
+                className="bg-[#D94826] h-full transition-all duration-300"
+                style={{ width: `${focusArt}%` }}
+              />
+              <div
+                className="bg-[#1D4ED8] h-full transition-all duration-300"
+                style={{ width: `${focusMath}%` }}
+              />
+            </div>
 
-          <div className="flex justify-between text-[11px] text-slate-500 font-mono">
-            <span>More Studio Arts</span>
-            <span>Balanced 50/50</span>
-            <span>More Applied Code</span>
+            <input
+              type="range"
+              min="20"
+              max="80"
+              step="5"
+              value={focusArt}
+              onChange={(e) => handleFocusSliderChange(parseInt(e.target.value, 10))}
+              className="w-full accent-stone-900 cursor-pointer"
+            />
+
+            <div className="flex justify-between text-[11px] text-stone-500 font-mono">
+              <span>Studio & Visual Arts Priority</span>
+              <span>Balanced 50 / 50</span>
+              <span>Game & Code Priority</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Course Curriculums (6-Lesson Units) */}
+      {/* Course Program Tracks */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <span>Your Curated Learning Programs</span>
-              <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-mono">
-                {courses.length} Active Tracks
-              </span>
-            </h2>
-            <p className="text-xs text-slate-400">Each track includes 6 engaging lectures followed by an online Milestone Test</p>
+            <h2 className="text-lg font-bold text-stone-900">Active Learning Programs</h2>
+            <p className="text-xs text-stone-500">Each track includes 6 focused lectures followed by an online Milestone Test</p>
           </div>
         </div>
 
@@ -184,72 +186,76 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             const currentLesson = course.progress?.currentLesson || 1;
             const completedCount = course.progress?.completedLessons?.length || 0;
             const percent = Math.round((completedCount / 6) * 100);
+            const accent = getPassionAccent(course.passion_cluster);
 
             return (
               <div
                 key={course.id}
-                className="bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-2xl p-6 shadow-xl flex flex-col justify-between transition-all group"
+                className={`bg-white border border-stone-200 rounded-2xl p-6 shadow-studio flex flex-col justify-between hover:border-stone-300 transition-all ${accent.border}`}
               >
                 <div>
-                  <div className="flex items-start justify-between gap-3 mb-4">
+                  <div className="flex items-start justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3">
-                      <div className="p-3 bg-slate-950 border border-slate-800 rounded-2xl shadow-inner">
-                        {getPassionIcon(course.icon_name)}
+                      <div className="p-2.5 bg-stone-50 border border-stone-200 rounded-xl">
+                        {accent.icon}
                       </div>
                       <div>
-                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold block">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${accent.badge}`}>
                           {course.passion_cluster}
                         </span>
-                        <h3 className="font-bold text-white text-base group-hover:text-indigo-400 transition-colors">
+                        <h3 className="font-extrabold text-stone-900 text-base mt-1">
                           {course.title}
                         </h3>
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed line-clamp-2 mb-6">
+                  <p className="text-xs text-stone-600 leading-relaxed line-clamp-2 mb-6">
                     {course.description}
                   </p>
 
-                  {/* 6-Lesson Progress Bar */}
+                  {/* 6-Lesson Progress Sequence Indicator */}
                   <div className="space-y-2 mb-6">
-                    <div className="flex justify-between text-[11px] text-slate-400 font-semibold">
-                      <span>Progress: Lesson {currentLesson} of 6</span>
-                      <span className="font-mono text-indigo-400">{percent}%</span>
+                    <div className="flex justify-between text-[11px] text-stone-600 font-semibold">
+                      <span>Course Progress: Lecture {currentLesson} of 6</span>
+                      <span className="font-mono text-stone-900">{percent}% Completed</span>
                     </div>
 
-                    <div className="w-full h-2 bg-slate-950 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                    <div className="w-full h-2 bg-stone-100 rounded-full overflow-hidden border border-stone-200">
                       <div
-                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
-                        style={{ width: `${Math.max(percent, 8)}%` }}
+                        className="h-full bg-stone-900 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.max(percent, 10)}%` }}
                       />
                     </div>
 
-                    <div className="flex justify-between text-[10px] text-slate-500 font-mono pt-1">
-                      <span>6 Micro-Lectures</span>
-                      <span className="text-amber-400 flex items-center gap-1">
-                        <Award className="w-3 h-3" /> Milestone 7 Test
-                      </span>
+                    {/* Step dots for 6 lessons + milestone */}
+                    <div className="flex justify-between items-center pt-1 text-[10px] text-stone-400 font-mono">
+                      <span>L1</span>
+                      <span>L2</span>
+                      <span>L3</span>
+                      <span>L4</span>
+                      <span>L5</span>
+                      <span>L6</span>
+                      <span className="font-bold text-amber-700">Milestone 7</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 pt-4 border-t border-slate-800">
+                <div className="flex items-center gap-3 pt-4 border-t border-stone-100">
                   <button
                     onClick={() => onSelectCourse(course.id)}
-                    className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-indigo-600/30 transition-all"
+                    className="flex-1 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
                   >
                     <BookOpen className="w-4 h-4" />
-                    <span>Continue Lesson {currentLesson}</span>
+                    <span>Open Lecture {currentLesson}</span>
                   </button>
 
                   <button
                     onClick={() => onSelectMilestone(course.id)}
-                    className="px-3 py-2.5 bg-slate-950 hover:bg-amber-500/10 border border-slate-800 hover:border-amber-500/40 text-amber-400 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all"
-                    title="Take Milestone 7 Online Test"
+                    className="px-4 py-2.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 text-stone-800 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors"
                   >
-                    <Award className="w-4 h-4" />
-                    <span>Test</span>
+                    <Award className="w-4 h-4 text-amber-600" />
+                    <span>Milestone 7 Test</span>
                   </button>
                 </div>
               </div>

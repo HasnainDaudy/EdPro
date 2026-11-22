@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Send, Sparkles, X, ShieldAlert, MessageCircle, Lightbulb, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { Bot, Send, X, Lightbulb, ChevronRight } from 'lucide-react';
 import { User, ChatMessage } from '../types.js';
 import { streamTutorChat, fetchSuggestedTutorPrompts } from '../api.js';
 
@@ -30,18 +30,16 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
   const [tutorPersona, setTutorPersona] = useState<{ name: string; avatar: string; tone: string }>({
     name: 'Nova the Quest Guide',
-    avatar: '🚀',
-    tone: 'Supportive Socratic Mentor'
+    avatar: 'Nova',
+    tone: 'Socratic Inquiry'
   });
 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Auto-scroll on new messages
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isStreaming]);
 
-  // Load contextual suggestions when active lesson changes
   useEffect(() => {
     if (courseId && lessonNumber) {
       fetchSuggestedTutorPrompts(courseId, lessonNumber).then((prompts) => {
@@ -50,25 +48,23 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
     }
   }, [courseId, lessonNumber]);
 
-  // Initial greeting
   useEffect(() => {
     if (messages.length === 0) {
       const personaName = user?.age && user.age <= 9 ? 'Pip' : user?.age && user.age >= 14 ? 'Atlas' : 'Nova';
-      const emoji = user?.age && user.age <= 9 ? '🌟' : user?.age && user.age >= 14 ? '🏛️' : '🚀';
 
       setTutorPersona({
-        name: `${personaName} the Learning Mentor`,
-        avatar: emoji,
-        tone: 'Guided Inquiries'
+        name: `${personaName}`,
+        avatar: personaName,
+        tone: 'Socratic Inquiry'
       });
 
       setMessages([
         {
           id: 'welcome',
           sender: 'tutor',
-          text: `Hi ${user?.displayName || 'there'}! I'm ${personaName}. I'm here with you as you explore "${lessonTitle || 'your learning journey'}". What questions are popping up for you?`,
+          text: `Hello ${user?.displayName || 'there'}. I am ${personaName}, your studio mentor for "${lessonTitle || 'this topic'}". What concept or step would you like to explore together?`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          suggestions: suggestedPrompts.length > 0 ? suggestedPrompts : ['Explain the core concept', 'Give me a fun analogy', 'How do I start?']
+          suggestions: suggestedPrompts.length > 0 ? suggestedPrompts : ['Explain the core concept', 'Give me a studio analogy', 'Where should I start?']
         }
       ]);
     }
@@ -94,7 +90,6 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
     let currentSuggestions: string[] = [];
     let isBlocked = false;
 
-    // Create placeholder tutor message
     setMessages((prev) => [
       ...prev,
       {
@@ -121,7 +116,7 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
           if (data.tutorPersona) {
             setTutorPersona({
               name: data.tutorPersona,
-              avatar: data.avatarEmoji || '🚀',
+              avatar: data.tutorPersona.split(' ')[0],
               tone: data.tone || 'Socratic'
             });
           }
@@ -154,7 +149,7 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
               m.id === tutorMsgId
                 ? {
                     ...m,
-                    text: 'I ran into a small connection hiccup! But let’s stay on our lesson quest—what question can we explore together?'
+                    text: 'Connection briefly interrupted. Let us continue with our lesson—what question do you have?'
                   }
                 : m
             )
@@ -167,35 +162,35 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 md:w-[420px] bg-slate-900 border-l border-slate-800 shadow-2xl flex flex-col transition-all duration-300">
-      {/* Header */}
-      <div className="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+    <div className="fixed inset-y-0 right-0 z-50 w-full sm:w-96 md:w-[420px] bg-[#FAFAF8] border-l border-stone-200 shadow-2xl flex flex-col transition-all">
+      {/* Drawer Header */}
+      <div className="p-4 bg-white border-b border-stone-200 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-xl shadow-md">
-            {tutorPersona.avatar}
+          <div className="w-9 h-9 rounded-xl bg-stone-900 text-white flex items-center justify-center font-black text-xs">
+            EB
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <h3 className="font-bold text-slate-100 text-sm">{tutorPersona.name}</h3>
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <h3 className="font-extrabold text-stone-900 text-sm">{tutorPersona.name}</h3>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
             </div>
-            <p className="text-[11px] text-indigo-400 font-medium">Context-Aware Socratic Tutor</p>
+            <p className="text-[10px] text-stone-500 font-medium">Context-Aware Socratic Mentor</p>
           </div>
         </div>
 
         <button
           onClick={onClose}
-          className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+          className="p-1.5 rounded-lg text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Active Curriculum Context Badge */}
-      <div className="px-4 py-2.5 bg-indigo-950/40 border-b border-indigo-900/30 flex items-center gap-2 text-xs">
-        <Sparkles className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-        <span className="text-slate-400 truncate">
-          Active: <strong className="text-slate-200">{lessonTitle || 'Lesson Overview'}</strong>
+      {/* Active Curriculum Badge */}
+      <div className="px-4 py-2 bg-stone-100 border-b border-stone-200 flex items-center gap-2 text-xs text-stone-700">
+        <Bot className="w-3.5 h-3.5 text-[#D94826] shrink-0" />
+        <span className="truncate">
+          Grounded In: <strong className="font-bold text-stone-900">{lessonTitle || 'Lesson Overview'}</strong>
         </span>
       </div>
 
@@ -207,26 +202,26 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
             className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}
           >
             <div
-              className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed shadow-md ${
+              className={`max-w-[85%] rounded-2xl px-4 py-3 text-xs leading-relaxed shadow-xs ${
                 msg.sender === 'user'
-                  ? 'bg-indigo-600 text-white rounded-br-none'
-                  : 'bg-slate-800/90 text-slate-100 border border-slate-700/60 rounded-bl-none'
+                  ? 'bg-stone-900 text-white rounded-br-none'
+                  : 'bg-white text-stone-900 border border-stone-200 rounded-bl-none'
               }`}
             >
               {msg.text || (
                 <div className="flex items-center gap-1.5 py-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-bounce [animation-delay:0.4s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-stone-400 animate-bounce" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-stone-400 animate-bounce [animation-delay:0.2s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-stone-400 animate-bounce [animation-delay:0.4s]" />
                 </div>
               )}
             </div>
 
-            {/* Socratic Anti-Cheating Coaching Banner */}
+            {/* Socratic Anti-Cheating Alert */}
             {msg.isBlockedAnswer && (
-              <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-amber-400 bg-amber-950/40 border border-amber-900/40 px-2.5 py-1 rounded-lg">
-                <Lightbulb className="w-3.5 h-3.5" />
-                <span>Socratic Coach: Guided hints instead of direct answers</span>
+              <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-amber-900 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl font-medium">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-700" />
+                <span>Socratic Coach: Guided hints provided instead of direct answers</span>
               </div>
             )}
 
@@ -237,23 +232,23 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
                   <button
                     key={idx}
                     onClick={() => handleSendMessage(sug)}
-                    className="text-[11px] bg-slate-950 hover:bg-indigo-600/20 text-slate-300 hover:text-indigo-300 border border-slate-800 hover:border-indigo-500/40 px-2.5 py-1 rounded-full transition-all text-left flex items-center gap-1 shadow-sm"
+                    className="text-[11px] bg-white hover:bg-stone-100 text-stone-700 border border-stone-200 px-2.5 py-1 rounded-lg transition-colors text-left flex items-center gap-1 shadow-xs"
                   >
                     <span>{sug}</span>
-                    <ChevronRight className="w-2.5 h-2.5 opacity-60" />
+                    <ChevronRight className="w-2.5 h-2.5 opacity-50" />
                   </button>
                 ))}
               </div>
             )}
 
-            <span className="text-[10px] text-slate-500 mt-1 px-1">{msg.timestamp}</span>
+            <span className="text-[10px] text-stone-400 mt-1 px-1 font-mono">{msg.timestamp}</span>
           </div>
         ))}
         <div ref={chatEndRef} />
       </div>
 
       {/* Input Form */}
-      <div className="p-3 bg-slate-950 border-t border-slate-800">
+      <div className="p-3 bg-white border-t border-stone-200">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -266,20 +261,20 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
             value={input}
             disabled={isStreaming}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask your tutor anything about this lesson..."
-            className="flex-1 bg-slate-900 border border-slate-800 focus:border-indigo-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none transition-colors"
+            placeholder="Ask your tutor anything about this lecture..."
+            className="flex-1 bg-stone-50 border border-stone-200 focus:border-stone-900 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none"
           />
           <button
             type="submit"
             disabled={isStreaming || !input.trim()}
-            className="p-2.5 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:hover:bg-indigo-600 text-white rounded-xl shadow-md transition-all"
+            className="p-2.5 bg-stone-900 hover:bg-stone-800 disabled:opacity-40 text-white rounded-xl transition-all"
           >
             <Send className="w-4 h-4" />
           </button>
         </form>
-        <div className="mt-2 text-[10px] text-slate-500 flex items-center justify-between px-1">
-          <span>COPPA Kid-Safe Sandbox</span>
-          <span className="text-emerald-500 font-mono">Zero PII Tracking</span>
+        <div className="mt-2 text-[10px] text-stone-400 flex items-center justify-between px-1 font-mono">
+          <span>COPPA Sandbox</span>
+          <span className="text-emerald-700 font-bold">Zero PII Harvesting</span>
         </div>
       </div>
     </div>
