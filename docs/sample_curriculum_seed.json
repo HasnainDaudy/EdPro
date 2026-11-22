@@ -1,0 +1,193 @@
+{
+  "course": {
+    "title": "Math Through Game Design: 2D Physics & Coordinate Worlds",
+    "slug": "math-through-game-design",
+    "description": "Learn algebra, Cartesian coordinates, and geometry not through dry drills, but by coding game mechanics, velocity vectors, and character physics.",
+    "age_track": "middle_school_10_13",
+    "passion_cluster": "Makers & Game Designers",
+    "modules": [
+      {
+        "module_number": 1,
+        "title": "Coordinates & Vectors: Bringing Characters to Life",
+        "lessons": [
+          {
+            "lesson_number": 1,
+            "title": "The Spark: How Mario Knows Where He Is",
+            "type": "hook",
+            "duration_minutes": 15,
+            "resources": [
+              {
+                "modality": "video",
+                "title": "Cartesian Planes in Video Games",
+                "url": "https://assets.edpro.org/videos/game_coords_intro.mp4",
+                "duration": "03:45"
+              },
+              {
+                "modality": "reader",
+                "title": "The Story of Rene Descartes and the Ceiling Fly",
+                "content_markdown": "Ever wondered why games use (X, Y)? Legend says Descartes watched a fly on a tiled ceiling..."
+              },
+              {
+                "modality": "simulation",
+                "title": "Interactive 2D Grid Sandbox",
+                "embed_type": "canvas_widget",
+                "config": { "grid_size": 10, "interactive": true }
+              }
+            ],
+            "formative_checks": [
+              {
+                "question": "If your character moves 3 tiles to the right and 2 tiles up, what are the (X, Y) coordinate changes?",
+                "type": "multiple_choice",
+                "options": [
+                  { "text": "(+3, +2)", "is_correct": true, "feedback": "Spot on! Right is positive X, Up is positive Y." },
+                  { "text": "(-3, +2)", "is_correct": false, "feedback": "Moving right is positive along the horizontal X-axis." },
+                  { "text": "(+2, +3)", "is_correct": false, "feedback": "Remember, X comes first (horizontal), then Y (vertical)." }
+                ]
+              }
+            ]
+          },
+          {
+            "lesson_number": 2,
+            "title": "The Negative Space: Falling into the Abyss",
+            "type": "concept_demystification",
+            "duration_minutes": 15,
+            "resources": [
+              { "modality": "video", "title": "Negative Numbers & Fall Zones", "duration": "04:12" },
+              { "modality": "simulation", "title": "Gravity Pit Simulator", "embed_type": "physics_sandbox" }
+            ],
+            "formative_checks": [
+              {
+                "question": "When a character falls below the ground plane (Y = 0), what sign does their Y-coordinate take?",
+                "type": "multiple_choice",
+                "options": [
+                  { "text": "Negative (-)", "is_correct": true, "feedback": "Exactly! Below zero is negative territory." },
+                  { "text": "Positive (+)", "is_correct": false, "feedback": "Values below zero are negative numbers." }
+                ]
+              }
+            ]
+          },
+          {
+            "lesson_number": 3,
+            "title": "Guided Build: Speed, Velocity & Frame Rates",
+            "type": "guided_practice",
+            "duration_minutes": 20,
+            "resources": [
+              { "modality": "simulation", "title": "Run & Dash Physics Controller", "embed_type": "blockly_widget" },
+              { "modality": "worksheet", "title": "Speed vs Velocity Cheat Sheet (PDF)", "url": "https://assets.edpro.org/sheets/velocity_cheatsheet.pdf" }
+            ],
+            "formative_checks": [
+              {
+                "question": "Arrange the speed steps to make your character smoothly accelerate:",
+                "type": "drag_and_drop_sequence",
+                "items": ["Initialize Speed = 0", "Add Acceleration (+2) each tick", "Cap at Max Speed (10)"]
+              }
+            ]
+          },
+          {
+            "lesson_number": 4,
+            "title": "The Creative Twist: Power-Ups & Multipliers",
+            "type": "creative_application",
+            "duration_minutes": 18,
+            "resources": [
+              { "modality": "video", "title": "Multiplication in Game Buffs", "duration": "03:30" },
+              { "modality": "reader", "title": "Exponential Growth vs Linear Speed" }
+            ],
+            "formative_checks": [
+              {
+                "question": "If base speed is 4, and 'Turbo Boost' multiplies speed by 1.5, what is the new speed?",
+                "type": "number_input",
+                "correct_value": 6,
+                "feedback": "4 * 1.5 = 6. Nice multiplication!"
+              }
+            ]
+          },
+          {
+            "lesson_number": 5,
+            "title": "Debugging the Glitch: Wall Collisions & Bounding Boxes",
+            "type": "problem_solving",
+            "duration_minutes": 20,
+            "resources": [
+              { "modality": "simulation", "title": "Hitbox Collision Detector", "embed_type": "canvas_widget" }
+            ],
+            "formative_checks": [
+              {
+                "question": "Identify which line of code causes the character to phase through walls:",
+                "type": "code_hotspot",
+                "code_snippet": "if (player.x > wall.x) { // Line 1\n  player.x = wall.x - 1; // Line 2\n} else {\n  player.x += speed; // Line 3\n}",
+                "correct_line": 3
+              }
+            ]
+          },
+          {
+            "lesson_number": 6,
+            "title": "Capstone Prep: Assembling Your Mini Arena",
+            "type": "synthesis",
+            "duration_minutes": 25,
+            "resources": [
+              { "modality": "video", "title": "Project Blueprint & Rubric Review", "duration": "05:00" },
+              { "modality": "worksheet", "title": "Arena Design Template (Sketch or Digital)", "url": "https://assets.edpro.org/sheets/arena_design.pdf" }
+            ],
+            "formative_checks": [
+              {
+                "question": "Self-Reflection: Which game mechanic are you most excited to build in your milestone?",
+                "type": "reflection_prompt",
+                "options": ["Gravity & Jump Curves", "Dynamic Speed Boosts", "Collision Hitboxes"]
+              }
+            ]
+          }
+        ],
+        "milestone_assessment": {
+          "lesson_number": 7,
+          "title": "Module 1 Mastery: 2D Game Physics Arena Showcase",
+          "type": "milestone_assessment",
+          "total_points": 100,
+          "passing_score": 75,
+          "automated_section": {
+            "weight_percentage": 50,
+            "questions": [
+              {
+                "id": "q1",
+                "prompt": "Select the correct coordinate for an item placed 5 units left and 8 units above the center (0,0):",
+                "type": "multiple_choice",
+                "options": [
+                  { "text": "(-5, 8)", "is_correct": true },
+                  { "text": "(5, -8)", "is_correct": false },
+                  { "text": "(8, -5)", "is_correct": false }
+                ],
+                "points": 10
+              },
+              {
+                "id": "q2",
+                "prompt": "Drag the mathematical formulas to their game mechanic equivalents:",
+                "type": "matching_matrix",
+                "pairs": [
+                  { "left": "New Position = Old Position + Velocity", "right": "Character Movement" },
+                  { "left": "Velocity = Velocity - Friction", "right": "Sliding to a Stop" },
+                  { "left": "Y-Velocity = Y-Velocity - Gravity", "right": "Jumping & Falling" }
+                ],
+                "points": 20
+              },
+              {
+                "id": "q3",
+                "prompt": "Click on the graph where the player character reaches maximum jump apex (highest point):",
+                "type": "hotspot_coordinate",
+                "target_coordinates": { "x": 120, "y": 45, "tolerance_radius": 15 },
+                "points": 20
+              }
+            ]
+          },
+          "performance_task": {
+            "weight_percentage": 50,
+            "prompt": "Design or code a 2D Arena! Either configure the interactive sandbox character with working jump and boundary physics, or sketch an annotated level map showing coordinates (X, Y) and velocity arrows.",
+            "submission_types": ["interactive_sandbox_state", "image_upload", "video_recording"],
+            "rubric": [
+              { "criterion": "Coordinate Accuracy", "max_points": 15, "levels": { "Master": 15, "Proficient": 12, "Developing": 8 } },
+              { "criterion": "Physics Logic (Gravity/Velocity)", "max_points": 20, "levels": { "Master": 20, "Proficient": 16, "Developing": 10 } },
+              { "criterion": "Creativity & Polish", "max_points": 15, "levels": { "Master": 15, "Proficient": 12, "Developing": 8 } }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
