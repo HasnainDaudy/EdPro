@@ -22,12 +22,12 @@ Historical special education treated cognitive variations like ADHD, Autism, Dys
 - **Autism Spectrum**: Autistic learners often possess exceptional systematic pattern recognition, precision, and deep monotropic focus that thrive in structured, predictable, sensory-calm environments.
 
 ### 2. Cognitive Load Theory & The Redundancy Paradox (Sweller, 1988; Le Cunff et al., 2024)
-Traditional Cognitive Load Theory warns that presenting text and audio simultaneously creates "extraneous cognitive load." However, recent research demonstrates that for neurodivergent learners, **multi-modal redundancy acts as an attentional anchor**. Providing an interactive reader synchronized with audio narration and live tactile sandboxes bypasses working memory bottlenecks, liberating cognitive bandwidth for higher-order reasoning.
+Traditional Cognitive Load Theory warns that presenting text and audio simultaneously creates "extraneous cognitive load." However, recent research demonstrates that for neurodivergent learners, **multi-modal redundancy acts as an attentional anchor**. Providing an interactive reader synchronized with bionic eye-fixation text, audio narration, and live tactile sandboxes bypasses working memory bottlenecks, liberating cognitive bandwidth for higher-order reasoning.
 
 ### 3. Universal Design for Learning (CAST UDL Guidelines 3.0)
 EdPro implements the three core pillars of UDL:
 - **Multiple Means of Engagement**: The **Curriculum Focus Allocation Slider** empowers students and mentors to adjust the balance between creative studio projects and applied logic.
-- **Multiple Means of Representation**: The **5-Modality Drawer** allows students to learn through Interactive Readers, Hands-On Simulation Sandboxes, Video Masterclasses, Audio Companions, or Printable Practice Sheets.
+- **Multiple Means of Representation**: The **5-Modality Drawer** allows students to learn through Interactive Readers with Bionic Reading, Hands-On Simulation Sandboxes, Video Masterclasses, Audio Companions, or Printable Practice Sheets.
 - **Multiple Means of Action & Expression**: Rather than judging students solely on timed multiple-choice tests, Milestone Evaluations feature authentic **Creative Performance Tasks** (original artwork, playable level schematics, musical loops) graded via multi-dimensional rubrics.
 
 ### 4. Eliminating the "Masking Tax"
@@ -39,18 +39,22 @@ In traditional classrooms, neurodivergent children expend up to **70% of their m
 
 ## Key Capabilities
 
-- **Personalized Focus Allocation**: Dynamic weighting between creative passion projects and core applied subjects.
-- **The "6+1" Unit Model**: Standard unit flow consisting of 6 engaging micro-lectures followed by an interactive milestone assessment.
-- **Multi-Modal Learning Drawer**: Universal Design for Learning (UDL) interface with interactive readers, video masterclasses, hands-on simulations, audio companions, and printable worksheets.
-- **Context-Aware Socratic AI Tutor ("EdBot")**:
-  - Dynamically grounds conversations strictly within the active topic and lesson objectives.
-  - Adapts tone and vocabulary across three age tiers (Ages 6–9, 10–13, and 14–17).
-  - Employs guided questions and conceptual analogies rather than providing direct homework or test answers.
-  - Includes prompt-injection defense and automatic child privacy (PII) filtering.
-- **Educator & Mentor Portal**:
-  - Student roster tracking with focus ratios and completed unit metrics.
-  - Authentic creative performance task grading with custom rubric scoring.
-  - Diagnostic mastery heatmaps across core competencies.
+- **Sensory & Cognitive Accessibility Cockpit**:
+  - **Bionic Eye-Fixation Reading**: Bolds the initial fixation points of words to guide saccadic eye movements for dyslexic and ADHD readers.
+  - **OpenDyslexic Typography**: Gravity-weighted letter baselines prevent rotation and transposition fatigue.
+  - **Sensory Calibration Modes**: Standard Bauhaus Daylight, Calm Warmth Sepia (autism/sensory overload prevention), and High Contrast Ink.
+  - **Executive Micro-Chunk Pacer**: 5-minute focused bursts with automated 60-second mindfulness breathing co-regulation pauses.
+- **Voice-First Socratic EdBot with Co-Regulation**:
+  - Speech-to-Text voice question input and Text-to-Speech audio reading.
+  - Emotion and frustration detector that validates feelings and de-escalates test anxiety.
+  - Strictly grounded in the active lecture topic with 3 age-adapted personas (Pip 6–9, Nova 10–13, Atlas 14–17).
+- **Universal IEP & Strengths-Based Telemetry Generator**:
+  - Automated 1-click clinical telemetry reports for school psychologists and 504/IEP district meetings.
+  - Highlights evolutionary strengths, multi-modal accommodations utilized, and growth trajectories.
+- **Open Curriculum Channel Studio (`@edpro/channel-spec`)**:
+  - Open-source specification allowing any educator or community author to compose and publish standardized 6+1 curriculum channels.
+- **Global Localization**:
+  - Multi-language dictionary support including English, Spanish, French, German, and Arabic (with dynamic RTL layout shifting).
 - **COPPA & FERPA Compliance Architecture**:
   - Minimal PII collection with pseudonymous accounts for minors under 13.
   - School official authorization workflows.
@@ -64,7 +68,7 @@ In traditional classrooms, neurodivergent children expend up to **70% of their m
 - **Backend**: Node.js, Express, TypeScript
 - **Database**: SQLite with disk persistence (`sql.js`, zero-setup embedded storage)
 - **Security**: Argon2/Bcrypt password hashing, HTTP-only SameSite cookies, JWT sessions, Zod validation
-- **Testing**: Vitest, Supertest (23 automated integration and unit tests)
+- **Testing**: Vitest, Supertest (26 automated integration and unit tests)
 - **Design System**: Daylight Scandinavian Studio & Bauhaus Workshop (`#FAFAF8` ground, zero AI slop, zero neon blur)
 
 ---
@@ -110,7 +114,7 @@ In traditional classrooms, neurodivergent children expend up to **70% of their m
 
 ## Running Automated Tests
 
-Run the test suite verifying authentication, RBAC boundaries, curriculum progression, Socratic guardrails, and grading workflows:
+Run the test suite verifying authentication, RBAC boundaries, curriculum progression, Socratic guardrails, grading workflows, and accessibility matrices:
 
 ```bash
 npm test
@@ -129,9 +133,11 @@ npm test
 │   │   ├── routes/         # Modular REST endpoints
 │   │   └── services/       # AI tutor engine and evaluation services
 │   └── client/             # React application source
-│       ├── components/     # UI views, player, dashboards, and simulations
+│       ├── components/     # UI views, player, dashboards, cockpit, simulations
+│       ├── context/        # AccessibilityContext, Bionic reading, speech engine
+│       ├── i18n.ts         # Multi-language translation dictionaries
 │       └── api.ts          # API client and SSE streaming handler
-├── tests/                  # Automated integration and unit test suites
+├── tests/                  # Automated integration and unit test suites (26 tests)
 ├── docs/                   # Architectural blueprints, pedagogy framework & inclusion research
 │   ├── inclusive_pedagogy_research.md  # Academic whitepaper on neurodiversity & UDL
 │   ├── pedagogy_framework.md           # The 6+1 Unit curriculum model
@@ -140,6 +146,12 @@ npm test
 ├── docker-compose.yml      # Local container orchestration
 └── package.json            # Project dependencies and operational scripts
 ```
+
+---
+
+## Contributing
+
+We welcome contributions from teachers, cognitive scientists, engineers, parents, and neurodivergent individuals worldwide. Please read [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 
 ---
 
