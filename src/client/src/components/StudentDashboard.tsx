@@ -11,11 +11,13 @@ import {
   Award,
   CheckCircle2,
   Clock,
-  Sparkles
+  Sparkles,
+  UtensilsCrossed
 } from 'lucide-react';
 import { User, Course } from '../types.js';
 import { fetchCourses, updateProfile } from '../api.js';
 import { useAccessibility } from '../context/AccessibilityContext.js';
+import { FamilyDinnerCardModal } from './FamilyDinnerCardModal.js';
 
 interface StudentDashboardProps {
   user: User;
@@ -36,6 +38,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const [isSavingFocus, setIsSavingFocus] = useState<boolean>(false);
   const [selectedPassion, setSelectedPassion] = useState<string>(user.passionTrack ?? 'visual_arts');
   const [loading, setLoading] = useState<boolean>(true);
+  const [isFamilyCardOpen, setIsFamilyCardOpen] = useState<boolean>(false);
   const { t } = useAccessibility();
 
   useEffect(() => {
@@ -121,6 +124,18 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 <span className="text-xs font-mono font-bold text-stone-900">Artisan Level 3</span>
               </div>
             </div>
+
+            <button
+              onClick={() => setIsFamilyCardOpen(true)}
+              className="bg-amber-50 hover:bg-amber-100 border border-amber-200 px-4 py-2.5 rounded-2xl flex items-center gap-2.5 transition-colors shadow-xs"
+              title="Tonight's Family Dinner Table Card"
+            >
+              <UtensilsCrossed className="w-4 h-4 text-[#D94826]" />
+              <div className="text-left">
+                <span className="text-[10px] uppercase font-bold text-amber-900 block">Family Bridge</span>
+                <span className="text-xs font-bold text-stone-900">Tonight's Dinner Card</span>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -265,6 +280,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           })}
         </div>
       </div>
+
+      {/* Family Dinner Table Conversation Bridge Modal */}
+      <FamilyDinnerCardModal
+        isOpen={isFamilyCardOpen}
+        onClose={() => setIsFamilyCardOpen(false)}
+        studentName={user.displayName}
+        courseTitle="Personalized Curriculum Track"
+        lessonTitle="Recent Studio Explorations"
+      />
     </div>
   );
 };

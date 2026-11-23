@@ -15,13 +15,21 @@ import {
   Sparkles,
   Clock,
   Heart,
-  RotateCcw
+  RotateCcw,
+  Compass,
+  Footprints,
+  UtensilsCrossed,
+  Star,
+  Check
 } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import { User, LessonDetail } from '../types.js';
 import { fetchLesson, completeLesson } from '../api.js';
 import { ColorWheelSimulation } from './simulations/ColorWheelSimulation.js';
 import { CoordinateGameSimulation } from './simulations/CoordinateGameSimulation.js';
 import { useAccessibility } from '../context/AccessibilityContext.js';
+import { HeartAndMindModal } from './HeartAndMindModal.js';
+import { FamilyDinnerCardModal } from './FamilyDinnerCardModal.js';
 
 interface LessonPlayerProps {
   user: User | null;
@@ -42,7 +50,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
 }) => {
   const [currentLessonNum, setCurrentLessonNum] = useState<number>(initialLessonNumber);
   const [lesson, setLesson] = useState<LessonDetail | null>(null);
-  const [activeModality, setActiveModality] = useState<'reader' | 'simulation' | 'video' | 'audio' | 'worksheet'>('reader');
+  const [activeModality, setActiveModality] = useState<'reader' | 'simulation' | 'video' | 'audio' | 'worksheet' | 'quest'>('reader');
   const [pulseChoice, setPulseChoice] = useState<number | null>(null);
   const [pulseAnswered, setPulseAnswered] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
@@ -52,6 +60,14 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
   const [isChunkActive, setIsChunkActive] = useState<boolean>(true);
   const [isBreakModalOpen, setIsBreakModalOpen] = useState<boolean>(false);
   const [breakTimer, setBreakTimer] = useState<number>(60);
+
+  // Human Flourishing Modals State
+  const [isHeartAndMindOpen, setIsHeartAndMindOpen] = useState<boolean>(false);
+  const [isFamilyCardOpen, setIsFamilyCardOpen] = useState<boolean>(false);
+
+  // Off-Screen Physical Quest State
+  const [questStepsCompleted, setQuestStepsCompleted] = useState<Record<number, boolean>>({});
+  const [isQuestFinished, setIsQuestFinished] = useState<boolean>(false);
 
   const {
     renderBionic,
@@ -67,6 +83,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
     setLoading(true);
     setPulseChoice(null);
     setPulseAnswered(false);
+    setQuestStepsCompleted({});
+    setIsQuestFinished(false);
     stopSpeaking();
 
     fetchLesson(courseId, currentLessonNum)
@@ -115,9 +133,14 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
     return () => clearInterval(interval);
   }, [isBreakModalOpen]);
 
-  const handleCompleteAndNext = async () => {
+  const handleOpenHeartAndMind = () => {
+    stopSpeaking();
+    setIsHeartAndMindOpen(true);
+  };
+
+  const finalizeCompleteAndNext = async () => {
+    setIsHeartAndMindOpen(false);
     try {
-      stopSpeaking();
       await completeLesson(courseId, currentLessonNum);
       if (currentLessonNum < 6) {
         setCurrentLessonNum((prev) => prev + 1);
@@ -127,6 +150,22 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
     } catch (err) {
       console.error('Complete lesson error:', err);
     }
+  };
+
+  const handleToggleQuestStep = (stepIdx: number) => {
+    setQuestStepsCompleted((prev) => ({
+      ...prev,
+      [stepIdx]: !prev[stepIdx]
+    }));
+  };
+
+  const handleFinishQuest = () => {
+    setIsQuestFinished(true);
+    confetti({
+      particleCount: 90,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
   };
 
   const formatTimer = (sec: number) => {
@@ -145,6 +184,23 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
       </div>
     );
   }
+
+  // Domain-specific off-screen quests
+  const isArtsTrack = lesson.title.toLowerCase().includes('color') || lesson.title.toLowerCase().includes('geometry') || lesson.title.toLowerCase().includes('tessellation');
+
+  const questSteps = isArtsTrack
+    ? [
+        'Close or dim your laptop screen. Step outdoors, onto a balcony, or look through an open window for 3 minutes.',
+        'Find 3 physical objects in the real world with distinct geometric shapes or contrasting natural colors (e.g., a green leaf against brown bark, a circular coin, or brick lines).',
+        'Trace their physical edges with your finger. Notice how real daylight creates natural light and shadow gradients.',
+        'Use physical pencil and paper to sketch a 60-second quick drawing of the shapes you just discovered.'
+      ]
+    : [
+        'Step away from your keyboard and stand up to stretch your spine and shoulders.',
+        'Take a piece of scrap paper and a small physical coin or key.',
+        'Draw a simple 4x4 coordinate grid on the paper with axes labeled 0, 1, 2, 3.',
+        'Physically slide your coin across coordinates: start at (0, 0), move to (2, 1), and jump to (3, 3). Feel how 2D vectors work in real space!'
+      ];
 
   return (
     <div className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 flex flex-col gap-6">
@@ -184,14 +240,25 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
           })}
         </div>
 
-        {/* Ask EdBot Contextual Tutor */}
-        <button
-          onClick={onOpenTutor}
-          className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold hover:bg-amber-100 transition-colors shadow-xs w-fit"
-        >
-          <Bot className="w-4 h-4 text-[#D94826]" />
-          <span>Need help with Part {currentLessonNum}?</span>
-        </button>
+        {/* Action Buttons: Family Card & Socratic Bot */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setIsFamilyCardOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-stone-300 hover:bg-stone-50 text-stone-700 text-xs font-bold shadow-xs transition-colors"
+            title="Tonight's Family Dinner Table Card"
+          >
+            <UtensilsCrossed className="w-3.5 h-3.5 text-[#D94826]" />
+            <span className="hidden md:inline">Tonight's Dinner Card</span>
+          </button>
+
+          <button
+            onClick={onOpenTutor}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold hover:bg-amber-100 transition-colors shadow-xs w-fit"
+          >
+            <Bot className="w-4 h-4 text-[#D94826]" />
+            <span>Need help with Part {currentLessonNum}?</span>
+          </button>
+        </div>
       </div>
 
       {/* ADHD Micro-Chunk Pacer Bar */}
@@ -242,6 +309,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
         {[
           { key: 'reader', label: 'Interactive Reader', icon: BookOpen },
           { key: 'simulation', label: 'Tactile Simulation', icon: Sparkles },
+          { key: 'quest', label: 'Off-Screen Physical Quest', icon: Compass },
           { key: 'video', label: 'Video Masterclass', icon: Video },
           { key: 'audio', label: 'Audio Companion', icon: Volume2 },
           { key: 'worksheet', label: 'Printable Practice', icon: FileText }
@@ -260,6 +328,11 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
             >
               <Icon className="w-4 h-4" />
               <span>{tab.label}</span>
+              {tab.key === 'quest' && (
+                <span className="text-[9px] font-mono uppercase bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.2 rounded">
+                  Kinesthetic
+                </span>
+              )}
             </button>
           );
         })}
@@ -346,7 +419,84 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
           </div>
         )}
 
-        {/* Modality 3: Video Masterclass */}
+        {/* Modality 3: Off-Screen Physical & Nature Grounding Quest */}
+        {activeModality === 'quest' && (
+          <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
+            <div className="bg-emerald-50/70 border border-emerald-200 p-5 rounded-2xl flex items-start gap-3.5">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold shrink-0">
+                <Compass className="w-5 h-5 text-emerald-700" />
+              </div>
+              <div>
+                <span className="text-[10px] font-mono uppercase bg-emerald-200 text-emerald-950 px-2 py-0.5 rounded font-bold">
+                  Tactile & Nature Grounding Quest
+                </span>
+                <h3 className="text-base font-extrabold text-stone-900 mt-1">
+                  Kinesthetic Mission: Step Into the Physical World
+                </h3>
+                <p className="text-xs text-stone-600 mt-0.5 leading-relaxed">
+                  Real knowledge connects with your physical senses. Complete this 10-minute off-screen quest to experience the concepts in the tactile world around you.
+                </p>
+              </div>
+            </div>
+
+            {/* Step-by-Step Checklist */}
+            <div className="space-y-3">
+              {questSteps.map((stepText, idx) => {
+                const isChecked = !!questStepsCompleted[idx];
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => handleToggleQuestStep(idx)}
+                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
+                      isChecked
+                        ? 'bg-emerald-50/50 border-emerald-300 shadow-xs'
+                        : 'bg-stone-50 border-stone-200 hover:border-stone-400'
+                    }`}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                        isChecked
+                          ? 'bg-emerald-600 border-emerald-600 text-white'
+                          : 'bg-white border-stone-300'
+                      }`}
+                    >
+                      {isChecked && <Check className="w-3.5 h-3.5" />}
+                    </div>
+                    <div className="text-xs">
+                      <span className="font-bold text-stone-900 block mb-0.5">
+                        Mission Step {idx + 1}
+                      </span>
+                      <p className={`leading-relaxed ${isChecked ? 'text-emerald-950 font-medium' : 'text-stone-700'}`}>
+                        {stepText}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Completion Trigger */}
+            <div className="pt-2 flex flex-col items-center gap-3">
+              {!isQuestFinished ? (
+                <button
+                  type="button"
+                  onClick={handleFinishQuest}
+                  className="px-6 py-3 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-xl text-xs flex items-center gap-2 shadow-studio transition-all"
+                >
+                  <Footprints className="w-4 h-4 text-emerald-400" />
+                  <span>I Completed My Off-Screen Quest!</span>
+                </button>
+              ) : (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-xs font-bold text-amber-900 animate-fade-in">
+                  <Star className="w-5 h-5 fill-amber-500 text-amber-600 shrink-0" />
+                  <span>Kinesthetic Explorer Badge Earned! Your physical connection deepens your understanding.</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Modality 4: Video Masterclass */}
         {activeModality === 'video' && (
           <div className="flex flex-col items-center">
             <div className="w-full max-w-3xl aspect-video rounded-2xl overflow-hidden bg-black border border-stone-200 shadow-md">
@@ -362,7 +512,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
           </div>
         )}
 
-        {/* Modality 4: Audio Companion */}
+        {/* Modality 5: Audio Companion */}
         {activeModality === 'audio' && (
           <div className="max-w-2xl mx-auto bg-stone-50 border border-stone-200 rounded-2xl p-6 text-center space-y-4">
             <div className="w-12 h-12 bg-stone-200 text-stone-700 rounded-full flex items-center justify-center mx-auto">
@@ -388,7 +538,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
           </div>
         )}
 
-        {/* Modality 5: Printable Worksheet */}
+        {/* Modality 6: Printable Worksheet */}
         {activeModality === 'worksheet' && (
           <div className="bg-stone-50 p-6 rounded-2xl border border-stone-200 font-mono text-xs text-stone-800 leading-relaxed whitespace-pre-wrap">
             <div className="flex justify-between items-center pb-4 border-b border-stone-200 mb-4">
@@ -484,13 +634,32 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
         </button>
 
         <button
-          onClick={handleCompleteAndNext}
+          onClick={handleOpenHeartAndMind}
           className="px-6 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-studio transition-all"
         >
-          <span>{currentLessonNum < 6 ? 'Complete & Open Next Lecture' : 'Proceed to Milestone 7 Evaluation'}</span>
+          <span>{currentLessonNum < 6 ? 'Complete Lecture & Reflect' : 'Complete & Proceed to Milestone 7'}</span>
           <ArrowRight className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Heart & Mind Metacognitive Journal Modal */}
+      <HeartAndMindModal
+        isOpen={isHeartAndMindOpen}
+        onClose={finalizeCompleteAndNext}
+        onComplete={() => {}}
+        lessonTitle={lesson.title}
+        studentName={user?.displayName || 'Learner'}
+        onOpenFamilyCard={() => setIsFamilyCardOpen(true)}
+      />
+
+      {/* Family Dinner Table Conversation Bridge Modal */}
+      <FamilyDinnerCardModal
+        isOpen={isFamilyCardOpen}
+        onClose={() => setIsFamilyCardOpen(false)}
+        studentName={user?.displayName || 'Your Learner'}
+        courseTitle={isArtsTrack ? 'Studio Visual Arts Track' : 'Game Mechanics & Code Track'}
+        lessonTitle={lesson.title}
+      />
 
       {/* 60-Second Co-Regulation Mindfulness Modal for ADHD Micro-Chunking */}
       {isBreakModalOpen && (

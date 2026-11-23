@@ -109,6 +109,7 @@ export async function submitMilestoneAssessment(
     answers: Record<string, number>;
     artifactTitle: string;
     artifactDescription: string;
+    ethicalImpactStatement?: string;
     artifactUrl: string;
   }
 ): Promise<any> {

@@ -14,10 +14,12 @@ import {
   Download,
   PlusCircle,
   FileCode,
-  Layers
+  Layers,
+  UtensilsCrossed
 } from 'lucide-react';
 import { User } from '../types.js';
 import { fetchTeacherStudents, fetchTeacherSubmissions, gradeSubmission } from '../api.js';
+import { FamilyDinnerCardModal } from './FamilyDinnerCardModal.js';
 
 interface TeacherDashboardProps {
   user: User;
@@ -33,6 +35,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ user }) => {
   const [isSubmittingGrade, setIsSubmittingGrade] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [copiedStudentId, setCopiedStudentId] = useState<string | null>(null);
+  const [familyModalStudent, setFamilyModalStudent] = useState<any | null>(null);
 
   // Course Authoring Studio state
   const [courseTitle, setCourseTitle] = useState('Music Production & Acoustic Harmonics');
@@ -222,6 +225,7 @@ Maintain multi-modal assessment via creative performance artifacts rather than t
                   <th className="py-3 px-4">Curriculum Focus Allocation</th>
                   <th className="py-3 px-4">Completed Lectures</th>
                   <th className="py-3 px-4">COPPA Status</th>
+                  <th className="py-3 px-4">Family Bridge</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100 font-medium">
@@ -254,6 +258,16 @@ Maintain multi-modal assessment via creative performance artifacts rather than t
                       <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
                         <CheckCircle2 className="w-3 h-3 text-emerald-600" /> {s.consent_status || 'VERIFIED'}
                       </span>
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <button
+                        onClick={() => setFamilyModalStudent(s)}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 text-[11px] font-semibold transition-colors"
+                        title="View Dinner Table Card"
+                      >
+                        <UtensilsCrossed className="w-3 h-3 text-[#D94826]" />
+                        <span>Dinner Card</span>
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -619,6 +633,15 @@ Maintain multi-modal assessment via creative performance artifacts rather than t
           </div>
         </div>
       )}
+
+      {/* Family Dinner Table Conversation Bridge Modal */}
+      <FamilyDinnerCardModal
+        isOpen={!!familyModalStudent}
+        onClose={() => setFamilyModalStudent(null)}
+        studentName={familyModalStudent?.display_name}
+        courseTitle="Classroom Studio Pathway"
+        lessonTitle="Latest Studio Discovery"
+      />
     </div>
   );
 };

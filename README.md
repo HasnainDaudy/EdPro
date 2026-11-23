@@ -39,6 +39,11 @@ In traditional classrooms, neurodivergent children expend up to **70% of their m
 
 ## Key Capabilities
 
+- **Human Flourishing & Character Architecture**:
+  - **"Heart & Mind" Metacognitive Journal**: Post-lecture reflection on productive struggle, self-compassion, and gratitude, awarding learners the *Resilience & Neuroplasticity Badge*.
+  - **Off-Screen Physical & Nature Grounding Quests**: Kinesthetic missions that prompt children to step away from the screen, touch natural geometric objects, and explore spatial vectors in physical space.
+  - **Ethical Design & Human Kindness Dimension**: Milestone performance rubrics require students to articulate how their creations protect dignity, inclusion, and joy for others.
+  - **Family "Dinner Table" Bridge**: Generates curiosity-driven conversation cards for parents to transform evening homework friction into celebratory family bonding.
 - **Sensory & Cognitive Accessibility Cockpit**:
   - **Bionic Eye-Fixation Reading**: Bolds the initial fixation points of words to guide saccadic eye movements for dyslexic and ADHD readers.
   - **OpenDyslexic Typography**: Gravity-weighted letter baselines prevent rotation and transposition fatigue.
@@ -68,7 +73,7 @@ In traditional classrooms, neurodivergent children expend up to **70% of their m
 - **Backend**: Node.js, Express, TypeScript
 - **Database**: SQLite with disk persistence (`sql.js`, zero-setup embedded storage)
 - **Security**: Argon2/Bcrypt password hashing, HTTP-only SameSite cookies, JWT sessions, Zod validation
-- **Testing**: Vitest, Supertest (26 automated integration and unit tests)
+- **Testing**: Vitest, Supertest (30 automated integration and unit tests)
 - **Design System**: Daylight Scandinavian Studio & Bauhaus Workshop (`#FAFAF8` ground, zero AI slop, zero neon blur)
 
 ---
@@ -137,7 +142,7 @@ npm test
 │       ├── context/        # AccessibilityContext, Bionic reading, speech engine
 │       ├── i18n.ts         # Multi-language translation dictionaries
 │       └── api.ts          # API client and SSE streaming handler
-├── tests/                  # Automated integration and unit test suites (26 tests)
+├── tests/                  # Automated integration and unit test suites (30 tests)
 ├── docs/                   # Architectural blueprints, pedagogy framework & inclusion research
 │   ├── inclusive_pedagogy_research.md  # Academic whitepaper on neurodiversity & UDL
 │   ├── pedagogy_framework.md           # The 6+1 Unit curriculum model

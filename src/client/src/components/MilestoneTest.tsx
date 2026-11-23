@@ -24,6 +24,7 @@ export const MilestoneTest: React.FC<MilestoneTestProps> = ({ user, courseId, on
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [artifactTitle, setArtifactTitle] = useState<string>('');
   const [artifactDescription, setArtifactDescription] = useState<string>('');
+  const [ethicalImpactStatement, setEthicalImpactStatement] = useState<string>('');
   const [artifactUrl, setArtifactUrl] = useState<string>('');
   const [previousSubmission, setPreviousSubmission] = useState<any>(null);
   const [submittedResult, setSubmittedResult] = useState<any>(null);
@@ -66,6 +67,7 @@ export const MilestoneTest: React.FC<MilestoneTestProps> = ({ user, courseId, on
         answers,
         artifactTitle: artifactTitle || 'My Creative Milestone Submission',
         artifactDescription,
+        ethicalImpactStatement,
         artifactUrl
       });
 
@@ -301,6 +303,26 @@ export const MilestoneTest: React.FC<MilestoneTestProps> = ({ user, courseId, on
                   onChange={(e) => setArtifactDescription(e.target.value)}
                   placeholder="Explain how you applied the concepts from the 6 lectures in your project..."
                   className="w-full bg-stone-50 border border-stone-300 focus:border-stone-900 rounded-xl px-3.5 py-2.5 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none"
+                />
+              </div>
+
+              <div className="bg-amber-50/70 border border-amber-200 p-4 rounded-2xl space-y-2">
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-[#D94826]" />
+                  <label className="block text-xs font-bold text-amber-950">
+                    Humanity, Kindness & Ethical Impact Reflection
+                  </label>
+                </div>
+                <p className="text-[11px] text-amber-900/80 leading-relaxed">
+                  How does your project help others, bring joy to someone feeling down, or ensure fairness and inclusion for people with different physical or learning abilities?
+                </p>
+                <textarea
+                  rows={2}
+                  required
+                  value={ethicalImpactStatement}
+                  onChange={(e) => setEthicalImpactStatement(e.target.value)}
+                  placeholder="e.g. I designed my colors with high contrast so friends with low vision can enjoy it, and added calm music to help anyone feeling anxious..."
+                  className="w-full bg-white border border-amber-300 focus:border-stone-900 rounded-xl px-3.5 py-2 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none"
                 />
               </div>
 

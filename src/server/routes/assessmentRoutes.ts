@@ -75,7 +75,7 @@ assessmentRouter.get('/:courseId', authenticate, async (req: AuthenticatedReques
 assessmentRouter.post('/:courseId/submit', authenticate, requireAuth, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const { courseId } = req.params;
-    const { answers, artifactTitle, artifactDescription, artifactUrl } = req.body;
+    const { answers, artifactTitle, artifactDescription, ethicalImpactStatement, artifactUrl } = req.body;
     const studentId = req.user!.id;
 
     const course = await queryOne<any>('SELECT id FROM courses WHERE id = ? OR slug = ?', [courseId, courseId]);
@@ -113,6 +113,10 @@ assessmentRouter.post('/:courseId/submit', authenticate, requireAuth, async (req
     const submissionId = uuidv4();
     const now = new Date().toISOString();
 
+    const combinedDescription = ethicalImpactStatement
+      ? `${artifactDescription || ''}\n\n[Ethical Design & Human Impact Reflection]:\n${ethicalImpactStatement}`
+      : (artifactDescription || '');
+
     await execute(
       `INSERT INTO student_submissions (
         id, student_id, assessment_id, course_id, auto_score, status,
@@ -127,7 +131,7 @@ assessmentRouter.post('/:courseId/submit', authenticate, requireAuth, async (req
         autoScore,
         artifactUrl || '',
         artifactTitle || 'Creative Project Submission',
-        artifactDescription || '',
+        combinedDescription,
         JSON.stringify(answers || {}),
         now
       ]
@@ -141,7 +145,7 @@ assessmentRouter.post('/:courseId/submit', authenticate, requireAuth, async (req
       passed: autoScore >= assessment.passing_score,
       status: 'PENDING_TEACHER_REVIEW',
       questionFeedback,
-      message: 'Assessment submitted successfully! Your teacher will review your creative artifact.'
+      message: 'Assessment submitted successfully! Your teacher will review your creative and ethical artifact.'
     });
   } catch (err: any) {
     console.error('Submit assessment error:', err);
