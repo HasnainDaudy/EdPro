@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Bot, LogOut, Sliders, Globe, Eye } from 'lucide-react';
+import { Sparkles, Bot, LogOut, Sliders, Globe, Eye, User as UserIcon } from 'lucide-react';
 import { User } from '../types.js';
 import { useAccessibility } from '../context/AccessibilityContext.js';
 import { AccessibilityCockpitModal } from './AccessibilityCockpitModal.js';
@@ -32,31 +32,36 @@ export const Navbar: React.FC<NavbarProps> = ({
     <>
       <header className="bg-white/95 backdrop-blur-md border-b border-stone-200 sticky top-0 z-40 transition-colors">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          {/* Brand Logo & Name */}
+          {/* Brand Logo & Editorial Typography */}
           <div
             onClick={() => onNavigate('home')}
-            className="flex items-center gap-3 cursor-pointer select-none group"
+            className="flex items-center gap-2.5 cursor-pointer select-none group"
           >
-            <div className="w-8 h-8 rounded-lg bg-stone-900 text-white flex items-center justify-center font-black text-sm tracking-wider shadow-sm group-hover:bg-[#D94826] transition-colors">
+            <div className="w-8 h-8 rounded-xl bg-stone-900 text-white flex items-center justify-center font-black text-xs tracking-wide shadow-xs group-hover:bg-[#D94826] transition-colors">
               EP
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="font-extrabold text-stone-900 text-lg tracking-tight">EdPro</span>
-              <span className="text-[10px] font-mono uppercase bg-stone-100 text-stone-600 font-semibold px-1.5 py-0.5 rounded border border-stone-200">
-                Open Source
+            <div className="flex flex-col">
+              <div className="flex items-center gap-1.5">
+                <span className="font-extrabold text-stone-900 text-base sm:text-lg tracking-tight leading-none">
+                  EdPro
+                </span>
+                <span className="w-1.5 h-1.5 rounded-full bg-[#D94826]" />
+              </div>
+              <span className="text-[10px] font-mono uppercase text-stone-600 tracking-wider font-semibold">
+                Open Education Studio
               </span>
             </div>
           </div>
 
-          {/* Center Nav Views (When authenticated) */}
+          {/* Center Navigation Segmented Control */}
           {user && (
-            <nav className="hidden md:flex items-center gap-1 bg-stone-100/80 p-1 rounded-xl border border-stone-200 text-xs font-semibold text-stone-600">
+            <nav className="hidden md:flex items-center gap-1 bg-stone-100/90 p-1 rounded-2xl border border-stone-200 text-xs font-semibold text-stone-600">
               {user.role === 'STUDENT' && (
                 <button
                   onClick={() => onNavigate('dashboard')}
-                  className={`px-3.5 py-1.5 rounded-lg transition-all ${
+                  className={`px-4 py-1.5 rounded-xl transition-all ${
                     currentView === 'dashboard'
-                      ? 'bg-white text-stone-900 shadow-sm border border-stone-200/80 font-bold'
+                      ? 'bg-white text-stone-900 shadow-xs border border-stone-200/90 font-bold'
                       : 'hover:text-stone-900'
                   }`}
                 >
@@ -67,9 +72,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               {(user.role === 'TEACHER' || user.role === 'ADMIN') && (
                 <button
                   onClick={() => onNavigate('teacher')}
-                  className={`px-3.5 py-1.5 rounded-lg transition-all ${
+                  className={`px-4 py-1.5 rounded-xl transition-all ${
                     currentView === 'teacher'
-                      ? 'bg-white text-stone-900 shadow-sm border border-stone-200/80 font-bold'
+                      ? 'bg-white text-stone-900 shadow-xs border border-stone-200/90 font-bold'
                       : 'hover:text-stone-900'
                   }`}
                 >
@@ -80,9 +85,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               {user.role === 'ADMIN' && (
                 <button
                   onClick={() => onNavigate('admin')}
-                  className={`px-3.5 py-1.5 rounded-lg transition-all ${
+                  className={`px-4 py-1.5 rounded-xl transition-all ${
                     currentView === 'admin'
-                      ? 'bg-white text-stone-900 shadow-sm border border-stone-200/80 font-bold'
+                      ? 'bg-white text-stone-900 shadow-xs border border-stone-200/90 font-bold'
                       : 'hover:text-stone-900'
                   }`}
                 >
@@ -93,7 +98,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
 
           {/* Right Action Bar */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             {/* Accessibility Cockpit Trigger */}
             <button
               onClick={() => setIsCockpitOpen(true)}
@@ -111,18 +116,18 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            {/* Ask Tutor button */}
+            {/* Socratic EdBot Tutor Button */}
             <button
               onClick={onOpenTutor}
-              className="flex items-center gap-2 bg-stone-50 hover:bg-stone-100 border border-stone-300 text-stone-800 px-3 py-1.5 rounded-xl text-xs font-semibold shadow-sm transition-all"
+              className="flex items-center gap-2 bg-stone-50 hover:bg-stone-100 border border-stone-300 text-stone-800 px-3.5 py-1.5 rounded-xl text-xs font-semibold shadow-xs transition-all group"
             >
-              <Bot className="w-4 h-4 text-[#D94826]" />
+              <Bot className="w-4 h-4 text-[#D94826] group-hover:scale-110 transition-transform" />
               <span className="hidden sm:inline">{t.askEdBot}</span>
             </button>
 
-            {/* Quick Demo Switcher */}
+            {/* Quick Demo Switcher Segmented Pill */}
             <div className="hidden xl:flex items-center gap-1 bg-stone-100 p-1 rounded-xl border border-stone-200 text-[11px]">
-              <span className="text-stone-400 font-mono text-[10px] px-1.5">Demo:</span>
+              <span className="text-stone-400 font-mono text-[10px] px-1.5 font-semibold">Demo:</span>
               <button
                 onClick={() => onQuickSwitchUser('leo_artist')}
                 className={`px-2 py-0.5 rounded-lg font-medium transition-colors ${
@@ -156,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
 
             {user ? (
-              <div className="flex items-center gap-3 pl-1">
+              <div className="flex items-center gap-2.5 pl-1">
                 <div className="text-right hidden sm:block">
                   <span className="text-xs font-bold text-stone-900 block leading-tight">{user.displayName}</span>
                   <span className="text-[10px] text-stone-500 font-mono capitalize">{user.role.toLowerCase()}</span>
