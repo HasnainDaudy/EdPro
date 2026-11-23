@@ -30,6 +30,7 @@ import { CoordinateGameSimulation } from './simulations/CoordinateGameSimulation
 import { useAccessibility } from '../context/AccessibilityContext.js';
 import { HeartAndMindModal } from './HeartAndMindModal.js';
 import { FamilyDinnerCardModal } from './FamilyDinnerCardModal.js';
+import { MarkdownContent } from './MarkdownContent.js';
 
 interface LessonPlayerProps {
   user: User | null;
@@ -384,9 +385,9 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
               </button>
             </div>
 
-            {/* Bionic / Standard Text Reader */}
-            <div className="text-stone-800 text-sm leading-relaxed whitespace-pre-line font-normal space-y-3">
-              {bionicReading ? renderBionic(lesson.readerContent) : lesson.readerContent}
+            {/* Formatted Markdown Reader with Bionic Support */}
+            <div className="text-stone-800 text-sm leading-relaxed">
+              <MarkdownContent content={lesson.readerContent} bionic={bionicReading} />
             </div>
 
             {/* Vocabulary Tokens */}

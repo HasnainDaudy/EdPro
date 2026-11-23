@@ -19,6 +19,7 @@ import {
 import { User, ChatMessage } from '../types.js';
 import { streamTutorChat, fetchSuggestedTutorPrompts } from '../api.js';
 import { useAccessibility } from '../context/AccessibilityContext.js';
+import { MarkdownContent } from './MarkdownContent.js';
 
 interface SocraticTutorDrawerProps {
   user: User | null;
@@ -405,7 +406,7 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
                 }`}
               >
                 {msg.text ? (
-                  <div className="whitespace-pre-line font-normal">{msg.text}</div>
+                  <MarkdownContent content={msg.text} className="text-xs leading-relaxed" />
                 ) : (
                   <div className="flex items-center gap-2 py-1">
                     <span className="w-2 h-2 rounded-full bg-stone-400 animate-bounce" />
