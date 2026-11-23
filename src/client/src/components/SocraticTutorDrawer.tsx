@@ -12,7 +12,9 @@ import {
   HeartHandshake,
   ArrowRight,
   ShieldCheck,
-  Compass
+  Compass,
+  AlertCircle,
+  Radio
 } from 'lucide-react';
 import { User, ChatMessage } from '../types.js';
 import { streamTutorChat, fetchSuggestedTutorPrompts } from '../api.js';
@@ -46,6 +48,8 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
   const [input, setInput] = useState<string>('');
   const [isStreaming, setIsStreaming] = useState<boolean>(false);
   const [isListening, setIsListening] = useState<boolean>(false);
+  const [interimTranscript, setInterimTranscript] = useState<string>('');
+  const [voiceError, setVoiceError] = useState<string | null>(null);
   const [suggestedPrompts, setSuggestedPrompts] = useState<string[]>([]);
   const [tutorPersona, setTutorPersona] = useState<{ name: string; avatar: string; tone: string; tag: string }>({
     name: 'Nova',
@@ -60,7 +64,7 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isStreaming]);
+  }, [messages, isStreaming, interimTranscript]);
 
   useEffect(() => {
     if (courseId && lessonNumber) {
@@ -98,48 +102,134 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
     }
   }, [lessonTitle, user]);
 
-  // Initialize Speech Recognition
+  // Clean up recognition when unmounting
   useEffect(() => {
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-
-      recognition.onresult = (event: any) => {
-        const transcript = event.results[0][0].transcript;
-        setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
-        setIsListening(false);
-      };
-
-      recognition.onerror = () => setIsListening(false);
-      recognition.onend = () => setIsListening(false);
-
-      recognitionRef.current = recognition;
-    }
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch {}
+      }
+    };
   }, []);
 
-  const toggleVoiceRecording = () => {
-    if (!recognitionRef.current) {
-      alert('Speech recognition is not supported in this browser environment. You can type your question directly.');
+  const stopVoiceRecording = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch {}
+    }
+    setIsListening(false);
+    setInterimTranscript('');
+  };
+
+  const startVoiceRecording = async () => {
+    setVoiceError(null);
+    setInterimTranscript('');
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      setVoiceError('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari, or type your question directly.');
       return;
     }
 
-    if (isListening) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-    } else {
-      try {
-        recognitionRef.current.start();
-        setIsListening(true);
-      } catch (err) {
-        console.error('Mic start error:', err);
+    // Explicitly prompt the user for microphone permissions so Chrome doesn't silently block it
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Release tracks immediately so speech recognition can bind to the device
+        stream.getTracks().forEach((track) => track.stop());
       }
+    } catch (err: any) {
+      console.warn('Microphone permission error:', err);
+      if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+        setVoiceError('Microphone permission was blocked. Please click the lock or camera icon in your browser address bar to allow microphone access.');
+        return;
+      }
+    }
+
+    // Stop any previous active recognition instance
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.abort();
+      } catch {}
+    }
+
+    try {
+      // Create a fresh SpeechRecognition instance on every activation
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setVoiceError(null);
+      };
+
+      recognition.onresult = (event: any) => {
+        let finalTrans = '';
+        let interim = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const res = event.results[i];
+          if (res.isFinal) {
+            finalTrans += res[0].transcript;
+          } else {
+            interim += res[0].transcript;
+          }
+        }
+
+        if (finalTrans) {
+          setInput((prev) => (prev ? `${prev} ${finalTrans.trim()}` : finalTrans.trim()));
+          setInterimTranscript('');
+        } else if (interim) {
+          setInterimTranscript(interim);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error event:', event.error);
+        setIsListening(false);
+        setInterimTranscript('');
+
+        if (event.error === 'not-allowed') {
+          setVoiceError('Microphone access was blocked. Please click the icon in your URL bar and select "Allow".');
+        } else if (event.error === 'network') {
+          setVoiceError('Speech recognition network service is currently unreachable. You can type your question directly.');
+        } else if (event.error === 'no-speech') {
+          // Normal timeout on silence, no error alert needed
+        } else if (event.error !== 'aborted') {
+          setVoiceError(`Voice input issue: ${event.error}. You can type directly.`);
+        }
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+        setInterimTranscript('');
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+      setIsListening(true);
+    } catch (err: any) {
+      console.error('Failed to initialize speech recognition:', err);
+      setIsListening(false);
+      setVoiceError('Could not start speech recognition. Please try typing your question.');
+    }
+  };
+
+  const toggleVoiceRecording = () => {
+    if (isListening) {
+      stopVoiceRecording();
+    } else {
+      startVoiceRecording();
     }
   };
 
   const handleSendMessage = async (textToSend?: string) => {
+    stopVoiceRecording();
     const text = (textToSend || input).trim();
     if (!text || isStreaming) return;
 
@@ -277,6 +367,7 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
           <button
             onClick={() => {
               stopSpeaking();
+              stopVoiceRecording();
               onClose();
             }}
             className="p-2 rounded-xl text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-colors"
@@ -373,7 +464,46 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
         </div>
 
         {/* Input Bar */}
-        <footer className="p-4 bg-white border-t border-stone-200">
+        <footer className="p-4 bg-white border-t border-stone-200 space-y-2">
+          {/* Active Voice Listening Banner */}
+          {isListening && (
+            <div className="bg-rose-50 border border-rose-200 rounded-2xl p-3 flex items-center justify-between animate-fade-in text-xs text-rose-950">
+              <div className="flex items-center gap-2.5 truncate">
+                <span className="w-3 h-3 rounded-full bg-rose-600 animate-ping shrink-0" />
+                <div className="truncate">
+                  <strong className="block font-bold">Listening to your voice...</strong>
+                  <span className="text-[11px] text-rose-800 font-medium italic truncate">
+                    {interimTranscript || 'Speak your question or idea into the microphone'}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={stopVoiceRecording}
+                className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-[11px] font-bold shrink-0 transition-colors"
+              >
+                Done Speaking
+              </button>
+            </div>
+          )}
+
+          {/* Voice Error Notice */}
+          {voiceError && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 flex items-start justify-between gap-2 text-xs text-amber-950 animate-fade-in">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-[#D94826] shrink-0 mt-0.5" />
+                <span>{voiceError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setVoiceError(null)}
+                className="text-stone-400 hover:text-stone-700 p-0.5"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -381,16 +511,17 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
             }}
             className="flex items-center gap-2.5"
           >
-            {/* Mic Toggle */}
+            {/* Mic Toggle Button */}
             <button
               type="button"
               onClick={toggleVoiceRecording}
               className={`p-3 rounded-2xl border transition-all ${
                 isListening
-                  ? 'bg-rose-500 text-white border-rose-600 animate-pulse shadow-sm'
-                  : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200'
+                  ? 'bg-rose-600 text-white border-rose-700 shadow-md animate-pulse ring-2 ring-rose-300'
+                  : 'bg-stone-50 hover:bg-stone-100 text-stone-700 border-stone-200 hover:border-stone-400'
               }`}
-              title={isListening ? 'Stop voice recording' : 'Voice question input'}
+              title={isListening ? 'Click to stop listening' : 'Click to speak using your microphone'}
+              aria-label={isListening ? 'Stop microphone' : 'Start microphone'}
             >
               {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
             </button>
@@ -414,7 +545,7 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
             </button>
           </form>
 
-          <div className="mt-2.5 text-[10px] text-stone-400 flex items-center justify-between px-1 font-mono">
+          <div className="text-[10px] text-stone-400 flex items-center justify-between px-1 font-mono">
             <span className="flex items-center gap-1.5">
               <HeartHandshake className="w-3.5 h-3.5 text-[#D94826]" />
               <span>Neurodiversity-Affirming</span>
