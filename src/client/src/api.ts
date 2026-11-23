@@ -1,4 +1,4 @@
-import { User, Course, LessonDetail, MilestoneAssessment, ChatMessage } from './types.js';
+import { User, Course, LessonDetail, MilestoneAssessment, ChatMessage, LLMConfig } from './types.js';
 
 const API_BASE = '/api';
 
@@ -124,13 +124,34 @@ export async function submitMilestoneAssessment(
   return data;
 }
 
+export async function testLLMConnection(llmConfig: LLMConfig): Promise<{ success: boolean; message: string }> {
+  try {
+    const res = await fetch(`${API_BASE}/tutor/test-connection`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ llmConfig }),
+      credentials: 'include'
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      return { success: false, message: err.message || `HTTP ${res.status}: ${res.statusText}` };
+    }
+    return await res.json();
+  } catch (err: any) {
+    return { success: false, message: err.message || 'Network connection failed' };
+  }
+}
+
 export async function streamTutorChat(
   payload: {
     message: string;
     courseId?: string;
     lessonNumber?: number;
+    lessonTitle?: string;
+    courseTitle?: string;
     activeModality?: string;
     conversationHistory?: any[];
+    llmConfig?: LLMConfig;
   },
   callbacks: {
     onStart?: (persona: any) => void;

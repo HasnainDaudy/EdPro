@@ -14,12 +14,15 @@ import {
   ShieldCheck,
   Compass,
   AlertCircle,
-  Radio
+  Radio,
+  Settings,
+  Zap
 } from 'lucide-react';
-import { User, ChatMessage } from '../types.js';
+import { User, ChatMessage, LLMConfig } from '../types.js';
 import { streamTutorChat, fetchSuggestedTutorPrompts } from '../api.js';
 import { useAccessibility } from '../context/AccessibilityContext.js';
 import { MarkdownContent } from './MarkdownContent.js';
+import { AIConfigModal } from './AIConfigModal.js';
 
 interface SocraticTutorDrawerProps {
   user: User | null;
@@ -58,6 +61,18 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
     tone: 'Socratic Inquiry',
     tag: 'Quest Guide'
   });
+  const [isAIConfigOpen, setIsAIConfigOpen] = useState<boolean>(false);
+  const [llmConfig, setLlmConfig] = useState<LLMConfig | null>(null);
+
+  // Load configured LLM from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('edpro_llm_config');
+      if (saved) {
+        setLlmConfig(JSON.parse(saved));
+      }
+    } catch {}
+  }, []);
 
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const recognitionRef = useRef<any>(null);
@@ -76,7 +91,8 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
   }, [courseId, lessonNumber]);
 
   useEffect(() => {
-    if (messages.length === 0) {
+    const isOnlyWelcome = messages.length === 0 || (messages.length === 1 && messages[0].id === 'welcome');
+    if (isOnlyWelcome) {
       const personaName = user?.age && user.age <= 9 ? 'Pip' : user?.age && user.age >= 14 ? 'Atlas' : 'Nova';
       const personaTag = user?.age && user.age <= 9 ? 'Learning Buddy' : user?.age && user.age >= 14 ? 'Studio Mentor' : 'Quest Guide';
 
@@ -101,7 +117,7 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
         }
       ]);
     }
-  }, [lessonTitle, user]);
+  }, [lessonTitle, user, suggestedPrompts]);
 
   // Clean up recognition when unmounting
   useEffect(() => {
@@ -272,12 +288,15 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
           ? `The student feels discouraged ("${text}"). Respond with deep emotional co-regulation, validate their feeling, and break down the lesson "${lessonTitle}" into one tiny playful question.`
           : text,
         courseId,
+        courseTitle,
         lessonNumber,
+        lessonTitle,
         activeModality,
         conversationHistory: messages.slice(-6).map((m) => ({
           role: m.sender === 'user' ? 'user' : 'assistant',
           content: m.text
-        }))
+        })),
+        llmConfig: llmConfig || undefined
       },
       {
         onStart: (data) => {
@@ -365,17 +384,33 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={() => {
-              stopSpeaking();
-              stopVoiceRecording();
-              onClose();
-            }}
-            className="p-2 rounded-xl text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-colors"
-            aria-label="Close tutor drawer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setIsAIConfigOpen(true)}
+              title="Configure LLM Provider & API Keys"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 border border-stone-200 rounded-xl text-xs font-mono text-stone-700 transition-colors shadow-2xs"
+            >
+              <Zap className="w-3.5 h-3.5 text-orange-600 fill-orange-500" />
+              <span className="hidden sm:inline font-bold">
+                {llmConfig && llmConfig.provider !== 'offline'
+                  ? (llmConfig.model || llmConfig.provider)
+                  : 'Offline Engine'}
+              </span>
+              <Settings className="w-3.5 h-3.5 text-stone-500" />
+            </button>
+
+            <button
+              onClick={() => {
+                stopSpeaking();
+                stopVoiceRecording();
+                onClose();
+              }}
+              className="p-2 rounded-xl text-stone-400 hover:text-stone-900 hover:bg-stone-100 transition-colors"
+              aria-label="Close tutor drawer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </header>
 
         {/* Active Grounding Ribbon */}
@@ -558,6 +593,13 @@ export const SocraticTutorDrawer: React.FC<SocraticTutorDrawerProps> = ({
           </div>
         </footer>
       </aside>
+
+      {/* AI Provider & LLM Key Modal */}
+      <AIConfigModal
+        isOpen={isAIConfigOpen}
+        onClose={() => setIsAIConfigOpen(false)}
+        onConfigSaved={(newCfg) => setLlmConfig(newCfg)}
+      />
     </>
   );
 };

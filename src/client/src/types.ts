@@ -100,3 +100,13 @@ export interface ChatMessage {
   suggestions?: string[];
   isBlockedAnswer?: boolean;
 }
+
+export type LLMProvider = 'offline' | 'gemini' | 'openai' | 'anthropic' | 'ollama' | 'custom';
+
+export interface LLMConfig {
+  provider: LLMProvider;
+  apiKey?: string;
+  model?: string;
+  baseUrl?: string;
+  temperature?: number;
+}

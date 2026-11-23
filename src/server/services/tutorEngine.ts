@@ -1,5 +1,6 @@
 import { sanitizeKidInput } from '../middleware/coppa.js';
 import { config } from '../config.js';
+import { LLMGateway, LLMProviderConfig } from './llmGateway.js';
 
 export interface TutorContext {
   studentAge: number;
@@ -14,6 +15,7 @@ export interface TutorContext {
   analogies: string[];
   activeModality: string;
   conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }>;
+  llmConfig?: LLMProviderConfig;
 }
 
 export interface StreamEvent {
@@ -98,6 +100,37 @@ export class SocraticTutorEngine {
   }
 
   /**
+   * Construct age-appropriate Socratic System Prompt for LLM
+   */
+  static buildSocraticSystemPrompt(
+    context: TutorContext,
+    persona: { name: string; tone: string; maxWords: number }
+  ): string {
+    return `You are ${persona.name}, a context-aware, neurodiversity-affirming Socratic mentor for K-12 students in the EdPro Studio.
+Student Age: ${context.studentAge} (${context.ageTrack.replace(/_/g, ' ')})
+Learning Track: ${context.passionTrack.replace(/_/g, ' ')}
+Current Course: "${context.courseTitle}"
+Current Lesson: Lecture ${context.lessonNumber}: "${context.lessonTitle}"
+Lesson Learning Goal: "${context.objective}"
+Core Key Concepts: ${(context.keyConcepts || []).join(', ')}
+Allowed Vocabulary: ${(context.allowedVocab || []).join(', ')}
+Active Modality: ${context.activeModality}
+
+YOUR PEDAGOGICAL INVARIANTS:
+1. NEVER PROVIDE DIRECT TEST ANSWERS: If a student asks for the exact solution or answer to a quiz/test question, firmly but kindly decline. Guide them with a scaffolding hint or smaller sub-question.
+2. ANSWER CURIOSITY ACCURATELY: If the student asks genuine explanatory questions (e.g. "what are 12 tone color wheels?", "why do opposite colors pop?", "what is a coordinate vector?"), directly explain the core intuition accurately using age-appropriate language, concrete analogies, and visual clarity, then ask a provocative follow-up inquiry.
+3. CO-REGULATION & EMPATHY: If the student expresses frustration, self-doubt, or feeling stuck ("I'm stupid", "I can't do this"), validate their emotions warmly first, normalize struggle as neuroplastic brain growth, and offer a tiny, fun first step.
+4. TONE & LENGTH: Your persona tone is "${persona.tone}". Keep responses concise (around 50-100 words), formatted with clean markdown paragraphs and bold concepts. Do NOT output raw markdown headers like "###", use natural bolding or bullet points instead.
+5. SUGGESTIONS: At the very end of your response, output exactly 3 short, interactive follow-up suggestions for the student wrapped strictly in this XML tag:
+<suggestions>
+- [Suggestion 1]
+- [Suggestion 2]
+- [Suggestion 3]
+</suggestions>
+`;
+  }
+
+  /**
    * Generate intelligent, context-aware, non-repetitive Socratic responses.
    * Leverages deep multi-turn analysis, intent classification, and progressive scaffolding.
    */
@@ -108,17 +141,22 @@ export class SocraticTutorEngine {
   } {
     const cleanPrompt = sanitizeKidInput(userMessage).trim();
     const lower = cleanPrompt.toLowerCase();
-    const historyCount = context.conversationHistory ? context.conversationHistory.length : 0;
     const isEarlyChildhood = context.ageTrack === 'early_childhood_6_9';
     const isHighSchool = context.ageTrack === 'high_school_14_17';
 
     // Core concepts & domain details
     const primaryConcept = context.keyConcepts?.[0] || 'the core concept';
     const secondaryConcept = context.keyConcepts?.[1] || 'visual balance';
-    const lessonTitle = context.lessonTitle || 'Today\'s Lesson';
+    const lessonTitle = context.lessonTitle || "Today's Lesson";
     const courseTitle = context.courseTitle || 'Studio Track';
-    const isArtDomain = courseTitle.toLowerCase().includes('art') || lessonTitle.toLowerCase().includes('color') || lessonTitle.toLowerCase().includes('geometry');
-    const isGameDomain = courseTitle.toLowerCase().includes('game') || lessonTitle.toLowerCase().includes('coordinate') || lessonTitle.toLowerCase().includes('physics');
+    const isArtDomain =
+      courseTitle.toLowerCase().includes('art') ||
+      lessonTitle.toLowerCase().includes('color') ||
+      lessonTitle.toLowerCase().includes('geometry') ||
+      lower.includes('color') ||
+      lower.includes('colour') ||
+      lower.includes('wheel') ||
+      lower.includes('pigment');
 
     // 1. Direct answer plea detection
     const isAskingForDirectAnswer =
@@ -139,20 +177,65 @@ export class SocraticTutorEngine {
       } else if (isHighSchool) {
         return {
           reply: `Providing the direct answer robs you of the cognitive leap that develops first-principles mastery. Let's analyze the governing constraint instead: in ${lessonTitle}, how does ${primaryConcept} influence ${secondaryConcept}? What is your initial hypothesis?`,
-          suggestions: ['Walk me through the mathematical constraint', 'Give me an architectural analogy', 'What variables can we isolate?'],
+          suggestions: [
+            'Walk me through the mathematical constraint',
+            'Give me an architectural analogy',
+            'What variables can we isolate?'
+          ],
           isDirectAnswerBlocked: true
         };
       } else {
         return {
           reply: `Hey, giving you the answer would bypass the XP you earn by cracking it! 🎮 In ${lessonTitle}, every problem is a mini-boss. Let's look at ${primaryConcept}: what is the very first move or observation you'd make?`,
-          suggestions: ['What is the first clue?', 'Show me how this works in a real game', 'Give me a warm-up question'],
+          suggestions: [
+            'What is the first clue?',
+            'Show me how this works in a real game',
+            'Give me a warm-up question'
+          ],
           isDirectAnswerBlocked: true
         };
       }
     }
 
-    // 2. Intent: "Can you test my idea?" or proposing testing
-    if (lower.includes('test my idea') || lower.includes('test this') || lower.includes('can you test') || lower.includes('try my idea')) {
+    // 2. User Correction: "I asked ... not this"
+    if (lower.includes('i asked') || lower.includes('not this') || lower.includes('what i asked')) {
+      if (lower.includes('color') || lower.includes('colour') || lower.includes('wheel')) {
+        return {
+          reply: `Got it—thank you for steering us straight! 🎯\n\nThe 12-tone color wheel is a circle showing 12 key colors: the 3 primaries (Red, Yellow, Blue), the 3 secondaries (Orange, Green, Purple), and the 6 tertiary blends in between. It lets you see complementary harmonies (opposites like Blue & Orange) that create maximum visual contrast.\n\nWould you like to see how primary pigments mix, or how complementary colors make elements pop?`,
+          suggestions: ['How do primary pigments mix?', 'How do complementary colors pop?', 'Show me tertiary colors'],
+          isDirectAnswerBlocked: false
+        };
+      }
+      return {
+        reply: `Thanks for catching that! Let's lock right onto what you need. In "${lessonTitle}", our core mission is ${primaryConcept}. Tell me what specific part you want to break down right now!`,
+        suggestions: ['Explain the definition', 'Give me a simple example', 'Show me how to apply it'],
+        isDirectAnswerBlocked: false
+      };
+    }
+
+    // 3. Direct Subject Query: 12-Tone Color Wheel & Pigments
+    if (
+      lower.includes('color wheel') ||
+      lower.includes('colour wheel') ||
+      lower.includes('12 tone') ||
+      lower.includes('12-tone') ||
+      lower.includes('12 toon') ||
+      (lower.includes('pigment') && lower.includes('primary'))
+    ) {
+      return {
+        reply: `A 12-Tone Color Wheel is a circular visual map that organizes color harmony! 🎨\n\nIt is built from:\n• 3 Primary Pigments: Red, Yellow, Blue (pure wavelengths that cannot be created by mixing).\n• 3 Secondary Colors: Orange, Green, Violet (formed by combining pairs of primaries).\n• 6 Tertiary Colors: Delicate bridges like Red-Orange and Blue-Green.\n\nThe real superpower is Complementary Contrast: colors sitting directly opposite each other on the wheel make each other pop with optical energy! Which complementary pair would you use to make a game item stand out: Blue & Orange, Yellow & Purple, or Red & Green?`,
+        suggestions: ['Blue & Orange', 'Yellow & Purple', 'Red & Green'],
+        isDirectAnswerBlocked: false
+      };
+    }
+
+    // 4. Intent: "Can you test my idea?" or proposing testing
+    if (
+      lower.includes('test my idea') ||
+      lower.includes('test this') ||
+      lower.includes('can you test') ||
+      lower.includes('try my idea')
+    ) {
       if (isArtDomain) {
         return {
           reply: `Challenge accepted! 🎨 Let's test your idea right now. Suppose we place pure vibrant red directly next to emerald green without any neutral border. What do your eyes experience at the boundary? Does it vibrate, blend, or pop?`,
@@ -168,7 +251,7 @@ export class SocraticTutorEngine {
       }
     }
 
-    // 3. Intent: Testing student responses to previous questions
+    // 5. Intent: Testing student responses to previous questions
     if (lower.includes('it creates a pattern') || lower.includes('pattern')) {
       return {
         reply: `Spot on! Patterns are how human brains make sense of visual rhythm and mathematical predictability. But here is the master question: if a pattern is 100% predictable with zero variation, it can become boring. How would you introduce one surprise element to catch the player's eye?`,
@@ -193,7 +276,7 @@ export class SocraticTutorEngine {
       };
     }
 
-    // 4. Intent: "Give me an analogy"
+    // 6. Intent: "Give me an analogy"
     if (lower.includes('analogy') || lower.includes('metaphor') || lower.includes('like what')) {
       if (isArtDomain) {
         return {
@@ -210,8 +293,14 @@ export class SocraticTutorEngine {
       }
     }
 
-    // 5. Intent: "Explain the core concept" or "What does this mean?"
-    if (lower.includes('explain the core concept') || lower.includes('what is') || lower.includes('what does') || lower.includes('explain the main idea')) {
+    // 7. Intent: "Explain the core concept" or "What is/are..."
+    if (
+      lower.includes('explain the core concept') ||
+      lower.startsWith('what is') ||
+      lower.startsWith('what are') ||
+      lower.includes('what does') ||
+      lower.includes('explain the main idea')
+    ) {
       if (isArtDomain) {
         return {
           reply: `Here is the big secret: ${primaryConcept} is about how human eyes process light frequencies. When opposite colors sit next to each other on the 12-tone color wheel, each color makes the other look brighter and more vivid! Which two colors feel most energetic to you when paired together?`,
@@ -227,7 +316,7 @@ export class SocraticTutorEngine {
       }
     }
 
-    // 6. Intent: "Where should I start?"
+    // 8. Intent: "Where should I start?"
     if (lower.includes('where should i start') || lower.includes('start') || lower.includes('first step')) {
       if (isArtDomain) {
         return {
@@ -244,7 +333,7 @@ export class SocraticTutorEngine {
       }
     }
 
-    // 7. Intent: Greetings / Introductions
+    // 9. Intent: Greetings / Introductions
     if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey') || lower === 'help') {
       if (isEarlyChildhood) {
         return {
@@ -267,8 +356,14 @@ export class SocraticTutorEngine {
       }
     }
 
-    // 8. Intent: Frustration / Difficulty (Co-Regulation)
-    if (lower.includes('hard') || lower.includes('confused') || lower.includes('stuck') || lower.includes('dont get it') || lower.includes("don't understand")) {
+    // 10. Intent: Frustration / Difficulty (Co-Regulation)
+    if (
+      lower.includes('hard') ||
+      lower.includes('confused') ||
+      lower.includes('stuck') ||
+      lower.includes('dont get it') ||
+      lower.includes("don't understand")
+    ) {
       return {
         reply: `Take a comfortable breath with me. Feeling stuck is completely normal—it means your brain is wrestling with a brand-new concept, which is where real growth happens! Let's make it super simple: forget the big terms for a second. If you look at the screen right now, what is the single clearest thing you notice?`,
         suggestions: ['The colors look bright', 'The numbers keep moving', 'Can you give me a simple example?'],
@@ -276,7 +371,7 @@ export class SocraticTutorEngine {
       };
     }
 
-    // 9. Intent: "Why" questions
+    // 11. Intent: "Why" questions
     if (lower.startsWith('why') || lower.includes('why does') || lower.includes('why is')) {
       return {
         reply: `That is the question of a true researcher! Why questions unlock first principles. In ${lessonTitle}, ${primaryConcept} exists because nature follows mathematical harmony. If we didn't have this rule, things would clash or collapse. How do you think this rule helps you as a creator?`,
@@ -285,8 +380,7 @@ export class SocraticTutorEngine {
       };
     }
 
-    // 10. Multi-turn dynamic adaptive synthesis for general input
-    // Analyze user words to reflect their exact vocabulary and advance the dialogue
+    // 12. General topical fallback grounded in active lesson
     const words = cleanPrompt.split(/\s+/).filter((w) => w.length > 3);
     const topicalWord = words.length > 0 ? words[words.length - 1] : primaryConcept;
 
@@ -298,25 +392,20 @@ export class SocraticTutorEngine {
       };
     } else if (isHighSchool) {
       return {
-        reply: `A compelling perspective regarding "${topicalWord}". When you synthesize ${topicalWord} with ${primaryConcept}, you are essentially balancing constraints against creative expression. If an industry engineer were optimizing this, what metric would they prioritize: speed, beauty, or accuracy?`,
-        suggestions: ['Prioritize aesthetic beauty', 'Prioritize computational speed', 'Balance both dynamically'],
+        reply: `An intriguing inquiry regarding "${cleanPrompt}". When analyzing ${lessonTitle}, examining the interaction between ${topicalWord} and ${primaryConcept} reveals core structural constraints. How would you model this relationship mathematically or aesthetically?`,
+        suggestions: [
+          `Analyze ${topicalWord} mathematically`,
+          `Relate ${topicalWord} to ${secondaryConcept}`,
+          `Test a hypothetical edge case`
+        ],
         isDirectAnswerBlocked: false
       };
     } else {
-      // Dynamic turn variation using conversation depth
-      const turnVariations = [
-        `That's a clever observation about "${topicalWord}"! 💡 Notice how it connects directly with ${primaryConcept}. If you were showing this to a friend who has never seen it before, how would you explain it in one sentence?`,
-        `You're thinking like a real studio designer! Taking "${topicalWord}" and applying it to ${lessonTitle} opens up new possibilities. What happens if we double its effect? Does it get cooler or chaotic?`,
-        `Great point on "${topicalWord}". In professional game and art studios, artists test that exact question. What do you think the user or player feels when they see that in action?`
-      ];
-
-      const selectedVariation = turnVariations[historyCount % turnVariations.length];
-
       return {
-        reply: selectedVariation,
+        reply: `Great curiosity about "${cleanPrompt}"! 🎮 In ${lessonTitle}, exploring how ${topicalWord} connects with ${primaryConcept} unlocks new creative paths. What happens if we experiment with it in your current project?`,
         suggestions: [
-          `It creates a striking focal point`,
-          `It makes the gameplay smoother`,
+          `Test ${topicalWord} in our simulation`,
+          `How does ${topicalWord} affect the final result?`,
           `Can you test another scenario with me?`
         ],
         isDirectAnswerBlocked: false
@@ -326,6 +415,7 @@ export class SocraticTutorEngine {
 
   /**
    * Stream response tokens via generator
+   * Supports active LLM streaming (Gemini, OpenAI, Claude, Ollama, Custom) with graceful fallback
    */
   static async *streamTutorResponse(
     context: TutorContext,
@@ -368,6 +458,103 @@ export class SocraticTutorEngine {
       return;
     }
 
+    // Check if an external LLM is configured
+    const clientLLM = context.llmConfig;
+    const effectiveProvider = clientLLM?.provider || (config.ai.provider as any) || 'offline';
+    const effectiveApiKey =
+      clientLLM?.apiKey ||
+      (effectiveProvider === 'gemini'
+        ? config.ai.geminiApiKey
+        : effectiveProvider === 'openai'
+          ? config.ai.openaiApiKey
+          : undefined);
+
+    const hasLLMCredentials =
+      effectiveProvider !== 'offline' &&
+      (effectiveProvider === 'ollama' || (effectiveApiKey && effectiveApiKey.trim().length > 0));
+
+    if (hasLLMCredentials) {
+      try {
+        const effectiveConfig: LLMProviderConfig = {
+          provider: effectiveProvider,
+          apiKey: effectiveApiKey,
+          model: clientLLM?.model || LLMGateway.getDefaultModel(effectiveProvider),
+          baseUrl: clientLLM?.baseUrl || (effectiveProvider === 'ollama' ? config.ai.ollamaBaseUrl : undefined),
+          temperature: clientLLM?.temperature ?? 0.7
+        };
+
+        const systemPrompt = this.buildSocraticSystemPrompt(context, persona);
+        const history = context.conversationHistory || [];
+
+        let fullStreamedText = '';
+        let suggestionBuffer = '';
+        let isInsideSuggestionsTag = false;
+
+        const streamGen = LLMGateway.streamChat(effectiveConfig, systemPrompt, history, userPrompt);
+
+        for await (const chunk of streamGen) {
+          fullStreamedText += chunk;
+
+          // Check for <suggestions> tag boundary
+          if (!isInsideSuggestionsTag) {
+            if (fullStreamedText.includes('<suggestions>')) {
+              isInsideSuggestionsTag = true;
+              const parts = fullStreamedText.split('<suggestions>');
+              // Only yield the part before the tag that hasn't been emitted yet
+              suggestionBuffer = parts[1] || '';
+              continue;
+            }
+
+            // Normal token yield
+            yield {
+              event: 'token',
+              data: { token: chunk }
+            };
+          } else {
+            // Accumulate suggestion text
+            suggestionBuffer += chunk;
+          }
+        }
+
+        // Parse suggestions from buffer if present
+        let parsedSuggestions: string[] = [];
+        if (suggestionBuffer.includes('</suggestions>')) {
+          const content = suggestionBuffer.split('</suggestions>')[0];
+          parsedSuggestions = content
+            .split('\n')
+            .map((s) => s.replace(/^[-*•\d.]+\s*/, '').trim())
+            .filter((s) => s.length > 2)
+            .slice(0, 3);
+        }
+
+        if (parsedSuggestions.length === 0) {
+          parsedSuggestions = [
+            `Tell me more about ${context.keyConcepts?.[0] || 'this concept'}`,
+            'Can you give me an analogy?',
+            'Can you test my idea?'
+          ];
+        }
+
+        yield {
+          event: 'suggestion',
+          data: {
+            suggestions: parsedSuggestions,
+            isDirectAnswerBlocked: false
+          }
+        };
+
+        yield {
+          event: 'done',
+          data: { completed: true, modelUsed: effectiveConfig.model }
+        };
+        return;
+      } catch (llmErr) {
+        console.warn('LLM Gateway stream error, falling back to enhanced offline tutor:', llmErr);
+        // Fall through to offline generator below
+      }
+    }
+
+    // Offline / Fallback Generator
     const { reply, suggestions, isDirectAnswerBlocked } = this.generateResponse(context, userPrompt);
     const words = reply.split(' ');
 
@@ -376,8 +563,7 @@ export class SocraticTutorEngine {
         event: 'token',
         data: { token: word + ' ' }
       };
-      // Smooth streaming delay
-      await new Promise((r) => setTimeout(r, 24));
+      await new Promise((r) => setTimeout(r, 22));
     }
 
     yield {

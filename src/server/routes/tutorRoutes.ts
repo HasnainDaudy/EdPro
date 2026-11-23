@@ -1,14 +1,41 @@
 import { Router, Request, Response } from 'express';
 import { queryOne } from '../db/database.js';
 import { SocraticTutorEngine, TutorContext } from '../services/tutorEngine.js';
+import { LLMGateway, LLMProviderConfig } from '../services/llmGateway.js';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth.js';
 
 export const tutorRouter = Router();
 
+// Test connection to configured LLM provider
+tutorRouter.post('/test-connection', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { llmConfig } = req.body;
+    if (!llmConfig) {
+      res.status(400).json({ success: false, message: 'LLM configuration object is required.' });
+      return;
+    }
+
+    const result = await LLMGateway.testConnection(llmConfig);
+    res.json(result);
+  } catch (err: any) {
+    console.error('LLM connection test error:', err);
+    res.status(500).json({ success: false, message: `Server test error: ${err.message || 'Unknown error'}` });
+  }
+});
+
 // SSE Streaming endpoint for real-time Socratic Tutor chat
 tutorRouter.post('/chat/stream', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { message, courseId, lessonNumber, activeModality = 'reader', conversationHistory = [] } = req.body;
+    const {
+      message,
+      courseId,
+      lessonNumber,
+      lessonTitle: clientLessonTitle,
+      courseTitle: clientCourseTitle,
+      activeModality = 'reader',
+      conversationHistory = [],
+      llmConfig
+    } = req.body;
 
     if (!message) {
       res.status(400).json({ error: { message: 'Message prompt is required.' } });
@@ -21,8 +48,8 @@ tutorRouter.post('/chat/stream', authenticate, async (req: AuthenticatedRequest,
     const passionTrack = req.user?.passionTrack || 'visual_arts';
 
     // Hydrate curriculum context
-    let courseTitle = 'Personalized Learning Track';
-    let lessonTitle = 'Core Concept Exploration';
+    let courseTitle = clientCourseTitle || 'Personalized Learning Track';
+    let lessonTitle = clientLessonTitle || 'Core Concept Exploration';
     let objective = 'Master the foundational skills and apply creative intuition.';
     let keyConcepts = ['Foundational Principles', 'Creative Expression'];
     let allowedVocab = ['Concept', 'Design', 'Pattern'];
@@ -58,7 +85,8 @@ tutorRouter.post('/chat/stream', authenticate, async (req: AuthenticatedRequest,
       allowedVocab,
       analogies,
       activeModality,
-      conversationHistory
+      conversationHistory,
+      llmConfig
     };
 
     // Set SSE headers
@@ -85,7 +113,16 @@ tutorRouter.post('/chat/stream', authenticate, async (req: AuthenticatedRequest,
 // Synchronous fallback endpoint
 tutorRouter.post('/chat', authenticate, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
-    const { message, courseId, lessonNumber, activeModality = 'reader', conversationHistory = [] } = req.body;
+    const {
+      message,
+      courseId,
+      lessonNumber,
+      lessonTitle: clientLessonTitle,
+      courseTitle: clientCourseTitle,
+      activeModality = 'reader',
+      conversationHistory = [],
+      llmConfig
+    } = req.body;
 
     if (!message) {
       res.status(400).json({ error: { message: 'Message prompt is required.' } });
@@ -96,8 +133,8 @@ tutorRouter.post('/chat', authenticate, async (req: AuthenticatedRequest, res: R
     const ageTrack = (req.user?.ageTrack as any) || (studentAge <= 9 ? 'early_childhood_6_9' : studentAge >= 14 ? 'high_school_14_17' : 'middle_school_10_13');
     const passionTrack = req.user?.passionTrack || 'visual_arts';
 
-    let courseTitle = 'Personalized Learning Track';
-    let lessonTitle = 'Core Concept Exploration';
+    let courseTitle = clientCourseTitle || 'Personalized Learning Track';
+    let lessonTitle = clientLessonTitle || 'Core Concept Exploration';
     let objective = 'Master the foundational skills and apply creative intuition.';
     let keyConcepts = ['Foundational Principles', 'Creative Expression'];
     let allowedVocab = ['Concept', 'Design', 'Pattern'];
@@ -133,30 +170,23 @@ tutorRouter.post('/chat', authenticate, async (req: AuthenticatedRequest, res: R
       allowedVocab,
       analogies,
       activeModality,
-      conversationHistory
+      conversationHistory,
+      llmConfig
     };
 
     const safety = SocraticTutorEngine.inspectSafety(message);
     if (!safety.safe) {
       res.json({
         reply: safety.pivotMessage,
-        suggestions: ['Back to the lesson', 'Tell me what to look for'],
+        suggestions: ['Back to the lesson', 'Explain the goal', 'What is our first step?'],
         isDirectAnswerBlocked: false,
-        safetyPivot: true
+        safetyIntervention: true
       });
       return;
     }
 
     const result = SocraticTutorEngine.generateResponse(context, message);
-    const persona = SocraticTutorEngine.getPersonaDetails(ageTrack);
-
-    res.json({
-      tutorPersona: persona.name,
-      tone: persona.tone,
-      avatarEmoji: persona.avatarEmoji,
-      activeLesson: lessonTitle,
-      ...result
-    });
+    res.json(result);
   } catch (err: any) {
     console.error('Tutor chat error:', err);
     res.status(500).json({ error: { message: 'Tutor service error.' } });

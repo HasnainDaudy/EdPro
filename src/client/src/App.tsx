@@ -16,7 +16,9 @@ export const App: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [currentView, setCurrentView] = useState<string>('home');
   const [activeCourseId, setActiveCourseId] = useState<string>('');
+  const [activeCourseTitle, setActiveCourseTitle] = useState<string>('');
   const [activeLessonNumber, setActiveLessonNumber] = useState<number>(1);
+  const [activeLessonTitle, setActiveLessonTitle] = useState<string>('');
   const [isAuthOpen, setIsAuthOpen] = useState<boolean>(false);
   const [isTutorOpen, setIsTutorOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
@@ -124,6 +126,11 @@ export const App: React.FC = () => {
             onBack={() => setCurrentView('dashboard')}
             onOpenTutor={() => setIsTutorOpen(true)}
             onGoToMilestone={() => setCurrentView('milestone')}
+            onLessonChange={(num, lTitle, cTitle) => {
+              setActiveLessonNumber(num);
+              if (lTitle) setActiveLessonTitle(lTitle);
+              if (cTitle) setActiveCourseTitle(cTitle);
+            }}
           />
         )}
 
@@ -150,7 +157,9 @@ export const App: React.FC = () => {
         isOpen={isTutorOpen}
         onClose={() => setIsTutorOpen(false)}
         courseId={activeCourseId}
+        courseTitle={activeCourseTitle}
         lessonNumber={activeLessonNumber}
+        lessonTitle={activeLessonTitle}
       />
 
       {/* Auth Modal */}

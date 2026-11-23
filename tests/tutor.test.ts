@@ -85,4 +85,31 @@ describe('Context-Aware Socratic AI Tutor Engine & Kid Safety', () => {
     expect(persona.name).toBe('Atlas the Studio Mentor');
     expect(persona.avatarEmoji).toBe('🏛️');
   });
+
+  it('should accurately explain 12-tone color wheels and primary pigments without generic loops', () => {
+    const result = SocraticTutorEngine.generateResponse(baseContext, 'what are 12 tone colour wheels what are 12 toon colour wheels');
+    expect(result.reply).toContain('12-Tone Color Wheel');
+    expect(result.reply).toContain('3 Primary Pigments');
+    expect(result.reply).toContain('3 Secondary Colors');
+    expect(result.reply).toContain('Complementary');
+    expect(result.suggestions).toContain('Blue & Orange');
+  });
+
+  it('should acknowledge user correction ("i asked ... not this") and steer accurately', () => {
+    const result = SocraticTutorEngine.generateResponse(baseContext, 'i asked what are 12 tone color wheels not this');
+    expect(result.reply).toContain('Got it');
+    expect(result.reply).toContain('12-tone color wheel');
+    expect(result.reply).toContain('primaries');
+  });
+
+  it('should construct a grounded, kid-safe Socratic system prompt with pedagogical invariants', () => {
+    const persona = SocraticTutorEngine.getPersonaDetails('middle_school_10_13');
+    const prompt = SocraticTutorEngine.buildSocraticSystemPrompt(baseContext, persona);
+
+    expect(prompt).toContain('NEVER PROVIDE DIRECT TEST ANSWERS');
+    expect(prompt).toContain('ANSWER CURIOSITY ACCURATELY');
+    expect(prompt).toContain('CO-REGULATION & EMPATHY');
+    expect(prompt).toContain('The 12-Tone Color Wheel');
+    expect(prompt).toContain('Nova the Quest Guide');
+  });
 });

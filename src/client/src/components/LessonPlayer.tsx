@@ -39,6 +39,7 @@ interface LessonPlayerProps {
   onBack: () => void;
   onOpenTutor: () => void;
   onGoToMilestone: () => void;
+  onLessonChange?: (lessonNum: number, lessonTitle: string, courseTitle?: string) => void;
 }
 
 export const LessonPlayer: React.FC<LessonPlayerProps> = ({
@@ -47,7 +48,8 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
   initialLessonNumber = 1,
   onBack,
   onOpenTutor,
-  onGoToMilestone
+  onGoToMilestone,
+  onLessonChange
 }) => {
   const [currentLessonNum, setCurrentLessonNum] = useState<number>(initialLessonNumber);
   const [lesson, setLesson] = useState<LessonDetail | null>(null);
@@ -92,6 +94,7 @@ export const LessonPlayer: React.FC<LessonPlayerProps> = ({
       .then((data) => {
         setLesson(data);
         setLoading(false);
+        onLessonChange?.(currentLessonNum, data.title, data.courseTitle);
       })
       .catch((err) => {
         console.error('Failed to load lesson:', err);
